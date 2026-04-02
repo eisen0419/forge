@@ -30,6 +30,8 @@
 - [模板内容][whats-inside]
 - [兼容工具][works-with]
 - [自定义][customization]
+- [构建基础][built-with]
+- [鸣谢][acknowledgments]
 - [参与贡献][contributing]
 - [许可证][license-section]
 
@@ -150,6 +152,36 @@ claude plugin install forge
 
 </div>
 
+## 构建基础
+
+Forge 的方法论提取自以下项目，并与它们协同工作：
+
+| 项目 | 简介 | 在 Forge 中的角色 |
+|------|------|------------------|
+| [Claude Code][claude-code] | Anthropic 的 AI 编程 CLI | 运行时 — CLAUDE.md 是 Claude Code 的持久化指令层 |
+| [Compound Engineering][ce-plugin] | Kieran Klaassen / Every 的 AI 开发工作流插件 | 方法论来源 — Forge 的任务路由、质量门禁、审查模式均受 CE 启发 |
+| [Revolve][revolve-repo] | 自进化 AI 研究架构 | 推荐搭配 — 自动化飞轮中的「进化 CLAUDE.md」环节 |
+| [Best-README-Template][readme-template] | Othneil Drew 的 README 模板 | README 结构和视觉参考 |
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
+## 鸣谢
+
+- [Kieran Klaassen](https://github.com/kieranklaassen) 和 [Every](https://every.to) — 感谢 [Compound Engineering][ce-plugin]，Forge 的任务路由、错误恢复熔断器、质量门禁、Subagent 策略和知识沉淀模式均源自 CE 的工作流方法论
+- [Anthropic](https://anthropic.com) — 感谢 Claude Code 和 CLAUDE.md 指令系统，让「工作流即代码」成为可能
+- [Othneil Drew](https://github.com/othneildrew) — 感谢 [Best-README-Template][readme-template] 提供的 README 布局灵感
+- [EverMind AI](https://github.com/EverMind-AI) — 感谢 [EverMemOS](https://github.com/EverMind-AI/EverMemOS) 提供的 README 视觉设计参考
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
 ## 参与贡献
 
 欢迎提 Issue、Feature Request 和 PR。
@@ -172,6 +204,8 @@ claude plugin install forge
 [whats-inside]: #模板内容
 [works-with]: #兼容工具
 [customization]: #自定义
+[built-with]: #构建基础
+[acknowledgments]: #鸣谢
 [contributing]: #参与贡献
 [license-section]: #许可证
 
@@ -195,3 +229,4 @@ claude plugin install forge
 [lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
+[readme-template]: https://github.com/othneildrew/Best-README-Template

@@ -31,6 +31,8 @@ Battle-tested CLAUDE.md templates — task routing, error recovery, quality gate
 - [What's Inside][whats-inside]
 - [Works With][works-with]
 - [Customization][customization]
+- [Built With][built-with]
+- [Acknowledgments][acknowledgments]
 - [Contributing][contributing]
 - [License][license-section]
 
@@ -152,6 +154,36 @@ Edit any section. Remove what you don't need. Add project-specific rules. The in
 
 </div>
 
+## Built With
+
+Forge's methodology is extracted from and works alongside these projects:
+
+| Project | Description | Role in Forge |
+|---------|-------------|---------------|
+| [Claude Code][claude-code] | Anthropic's AI coding CLI | Runtime — CLAUDE.md is Claude Code's persistent instruction layer |
+| [Compound Engineering][ce-plugin] | AI-powered development workflow plugin by Kieran Klaassen / Every | Methodology source — Forge's task routing, quality gates, and review patterns are inspired by CE's workflow |
+| [Revolve][revolve-repo] | Self-evolving AI research architecture | Recommended companion — automates the "Evolve CLAUDE.md" step in the flywheel |
+| [Best-README-Template][readme-template] | Popular README template by Othneil Drew | README structure and visual patterns |
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
+## Acknowledgments
+
+- [Kieran Klaassen](https://github.com/kieranklaassen) and [Every](https://every.to) — for [Compound Engineering][ce-plugin], the workflow methodology that Forge extracts and generalizes. CE's task routing, error recovery circuit breaker, quality gates, subagent strategy, and knowledge compounding patterns are the foundation of Forge's templates
+- [Anthropic](https://anthropic.com) — for Claude Code and the CLAUDE.md instruction system that makes workflow-as-code possible
+- [Othneil Drew](https://github.com/othneildrew) — for [Best-README-Template][readme-template], the README layout inspiration
+- [EverMind AI](https://github.com/EverMind-AI) — for [EverMemOS](https://github.com/EverMind-AI/EverMemOS), README visual design reference
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
 ## Contributing
 
 Issues, feature requests, and PRs welcome.
@@ -174,6 +206,8 @@ Issues, feature requests, and PRs welcome.
 [whats-inside]: #whats-inside
 [works-with]: #works-with
 [customization]: #customization
+[built-with]: #built-with
+[acknowledgments]: #acknowledgments
 [contributing]: #contributing
 [license-section]: #license
 
@@ -197,3 +231,4 @@ Issues, feature requests, and PRs welcome.
 [lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
+[readme-template]: https://github.com/othneildrew/Best-README-Template
