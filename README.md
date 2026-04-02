@@ -15,6 +15,8 @@ Battle-tested CLAUDE.md templates — task routing, error recovery, quality gate
 [What's Inside][whats-inside] •
 [Customization][customization]
 
+Sister project: **[Revolve][revolve-repo]** — self-evolving AI research architecture
+
 [![English][lang-en-badge]][lang-en]
 [![简体中文][lang-zh-badge]][lang-zh]
 

@@ -14,6 +14,8 @@
 [模板内容][whats-inside] •
 [自定义][customization]
 
+姊妹项目：**[Revolve][revolve-repo]** — 自进化 AI 研究架构
+
 [![English][lang-en-badge]][lang-en]
 [![简体中文][lang-zh-badge]][lang-zh]
 
