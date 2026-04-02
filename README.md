@@ -177,7 +177,7 @@ Issues, feature requests, and PRs welcome.
 [license-section]: #license
 
 <!-- Images — 替换为你的实际图片 URL -->
-[banner]: images/logo.jpg
+[banner]: images/banner.jpg
 [tier-diagram]: images/tiers.jpg
 [back-to-top]: https://img.shields.io/badge/-Back_to_top-gray?style=flat-square
 
