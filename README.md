@@ -16,6 +16,7 @@ Battle-tested CLAUDE.md templates — task routing, error recovery, quality gate
 [Customization][customization]
 
 [![English][lang-en-badge]][lang-en]
+[![简体中文][lang-zh-badge]][lang-zh]
 
 </div>
 
@@ -186,11 +187,13 @@ Issues, feature requests, and PRs welcome.
 [claude-badge]: https://img.shields.io/badge/Claude_Code-Plugin-7C3AED?style=flat-square
 [plugin-badge]: https://img.shields.io/badge/Install-Plugin-F97316?style=flat-square
 [lang-en-badge]: https://img.shields.io/badge/English-lightgrey?style=flat-square
+[lang-zh-badge]: https://img.shields.io/badge/简体中文-lightgrey?style=flat-square
 
 <!-- Links -->
 [license]: LICENSE
 [claude-code]: https://claude.ai/code
 [install-url]: https://github.com/eisen0419/forge
 [lang-en]: README.md
+[lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
