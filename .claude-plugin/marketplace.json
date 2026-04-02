@@ -1,0 +1,13 @@
+{
+  "name": "forge",
+  "owner": { "name": "Eisen", "url": "https://github.com/eisen0419" },
+  "metadata": { "description": "AI-assisted development workflow starter kit", "version": "1.0.0" },
+  "plugins": [{
+    "name": "forge",
+    "description": "Battle-tested CLAUDE.md templates for AI-assisted development. Task routing, error recovery, quality gates, knowledge compounding.",
+    "author": { "name": "Eisen", "url": "https://github.com/eisen0419" },
+    "homepage": "https://github.com/eisen0419/forge",
+    "tags": ["workflow", "claude-md", "methodology", "starter-kit"],
+    "source": "."
+  }]
+}

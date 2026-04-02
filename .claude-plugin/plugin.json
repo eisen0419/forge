@@ -1,0 +1,13 @@
+{
+  "name": "forge",
+  "version": "0.1.0",
+  "description": "AI-assisted development workflow starter kit. Provides battle-tested CLAUDE.md templates with task routing, error recovery, quality gates, and knowledge compounding.",
+  "author": {
+    "name": "Eisen",
+    "url": "https://github.com/eisen0419"
+  },
+  "homepage": "https://github.com/eisen0419/forge",
+  "repository": "https://github.com/eisen0419/forge",
+  "license": "MIT",
+  "keywords": ["workflow", "claude-md", "methodology", "starter-kit", "productivity"]
+}
