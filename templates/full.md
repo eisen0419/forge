@@ -71,6 +71,40 @@ Before any change, ask:
 
 **Downgrade signals**: Clear boundaries, no shared logic, problem converges to single fix.
 <!-- FULL_ONLY_END -->
+<!-- SECTION: Workflow Orchestration (Full tier only)
+  What: CE + GSD combined workflow for medium/large tasks
+  Why: CE excels at deep planning and review; GSD excels at autonomous parallel execution
+  Customize: Remove GSD integration if you don't use it; adjust the flow to your tools
+  Requires: Compound Engineering plugin + GSD (get-shit-done-cc) -->
+
+## Workflow Orchestration: CE + GSD
+
+**Four-step flow** — human decisions where they matter, full automation where they don't:
+
+```
+/ce:brainstorm → /ce:plan → /ce:run plan.md → /ce:review
+   You decide      You confirm    Fully automatic     You review
+```
+
+| Step | Tool | Automation | What happens |
+|------|------|------------|-------------|
+| Brainstorm | CE | Interactive | Explore requirements, write requirements doc |
+| Plan | CE | Interactive | Generate implementation plan with research + units |
+| Run | CE + GSD | **Automatic** | CE plan → GSD native planning → wave-parallel execution |
+| Review | CE | Interactive | Multi-persona code review (6-27 agents) |
+
+**`/ce:run`** bridges CE planning depth with GSD execution power:
+- Feeds CE plan as rich context into GSD's native `discuss-phase` and `plan-phase`
+- GSD generates its own PLAN.md files (no format conversion needed)
+- Executes via `execute-phase` with wave-based parallelization
+- Reports results and suggests `/ce:review`
+
+**Lightweight tasks** bypass this flow entirely — use `/ce:work` for single-file fixes and small changes.
+
+**Install GSD** (optional, enhances execution):
+```bash
+npx get-shit-done-cc@latest
+```
 <!-- SECTION: Error Recovery Circuit Breaker (Full tier only)
   What: Automatic escalation when the same approach keeps failing
   Why: Prevents infinite retry loops that waste tokens and time

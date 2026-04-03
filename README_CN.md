@@ -163,14 +163,14 @@ claude plugin install forge
 
 ### 高级用户使用 Full 层级 + 插件
 
-你正在同时使用 Claude Code、Compound Engineering 和 Revolve。Full 层级额外增加：
+你正在同时使用 Claude Code、Compound Engineering、GSD 和 Revolve。Full 层级额外增加：
 
 - **熔断器** — 当 Claude 连续两次尝试同一个失败方案时，它会停下来重新规划，而不是用无效重试消耗你的上下文窗口
 - **角色系统** — 将抽象角色（设计者、审查者）映射到 AI 提供商。你的审查者可以是 Codex，灵感来源可以是 Gemini
 - **爆炸半径协议** — 在修改任何导出函数之前，Claude 会 grep 所有调用方并将其加入验证清单
 - **知识沉淀** — 艰难调试出来的经验教训保存到 `docs/solutions/`，让未来的会话不再重蹈覆辙
 
-此层级可独立使用，但与 CE 的 `/ce:plan`、`/ce:work` 和 `/ce:review` 工作流配合时效果最佳。
+此层级可独立使用，但与 CE + GSD 组合工作流配合时效果最佳：`/ce:brainstorm` → `/ce:plan` → `/ce:run` → `/ce:review`。
 
 <div align="right">
 
@@ -184,6 +184,7 @@ claude plugin install forge
 |------|------|------|
 | 决策框架 | 两者 | 任何改动前三个问题 — 尽早阻断范围蔓延 |
 | 任务路由 | 两者 | 按任务类型选择正确的工作流 — 琐碎改动跳过完整流程 |
+| CE+GSD 工作流编排 | Full | brainstorm → plan → ce:run(自动) → review 四步流水线 |
 | 错误恢复 | Full | 熔断器：同一方案连续失败两次 → 必须重新规划 |
 | Compact 恢复 | Full | Claude 上下文被压缩后如何恢复状态 |
 | 质量门禁 | 两者 | 基于影响范围的测试策略，而非教条 |
@@ -261,7 +262,8 @@ Claude：[先 grep 调用方]
 | 工具 | 状态 | 增强内容 |
 |------|------|---------|
 | 独立使用 | 可用 | 无需任何插件 — 方法论完全在 CLAUDE.md 中 |
-| [Compound Engineering][ce-plugin] | 增强 | `/ce:plan`、`/ce:work`、`/ce:review`、`/ce:compound` |
+| [Compound Engineering][ce-plugin] | 增强 | `/ce:brainstorm`、`/ce:plan`、`/ce:review`、`/ce:compound` |
+| [GSD][gsd-repo] | 增强 | `/ce:run` 调用 GSD 的 wave 并行执行引擎，自治完成实施 |
 | gstack | 增强 | 浏览器 QA、CEO/工程计划审查 |
 | [Revolve][revolve-repo] | 增强 | 研究 pipeline + CLAUDE.md 自动进化 |
 
@@ -397,4 +399,5 @@ Forge 的方法论提取自以下项目，并与它们协同工作：
 [lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
+[gsd-repo]: https://github.com/gsd-build/get-shit-done
 [readme-template]: https://github.com/othneildrew/Best-README-Template
