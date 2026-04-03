@@ -170,7 +170,7 @@ You're running Claude Code with Compound Engineering and Revolve. Full tier adds
 - **Blast radius protocol** -- before touching any exported function, Claude greps all callers and adds them to the verification list
 - **Knowledge compounding** -- hard-won debugging lessons get saved to `docs/solutions/` so future sessions don't repeat the same mistakes
 
-This tier works standalone but shines when paired with CE's `/ce:plan`, `/ce:work`, and `/ce:review` workflow.
+This tier works standalone but shines when paired with the CE + GSD combined workflow: `/ce:brainstorm` → `/ce:plan` → `/ce:run` → `/ce:review`.
 
 <div align="right">
 
@@ -184,6 +184,7 @@ This tier works standalone but shines when paired with CE's `/ce:plan`, `/ce:wor
 |---------|------|-------------|
 | Decision Framework | Both | Three questions before any change -- cut scope creep early |
 | Task Routing | Both | Route tasks to right workflow -- skip ceremony for trivial changes |
+| CE+GSD Workflow | Full | brainstorm → plan → ce:run (automatic) → review pipeline |
 | Error Recovery | Full | Circuit breaker: same approach fails twice, must re-plan |
 | Compact Recovery | Full | What to do when Claude's context gets compressed mid-session |
 | Quality Gates | Both | Testing strategy tied to blast radius, not dogma |
@@ -261,7 +262,8 @@ Claude: [greps callers first]
 | Tool | Status | What it adds |
 |------|--------|-------------|
 | Standalone | Works | No plugins needed -- methodology lives in CLAUDE.md |
-| [Compound Engineering][ce-plugin] | Enhanced | `/ce:plan`, `/ce:work`, `/ce:review`, `/ce:compound` |
+| [Compound Engineering][ce-plugin] | Enhanced | `/ce:brainstorm`, `/ce:plan`, `/ce:review`, `/ce:compound` |
+| [GSD][gsd-repo] | Enhanced | `/ce:run` invokes GSD's wave-parallel execution engine for autonomous implementation |
 | gstack | Enhanced | Browser QA, CEO/eng plan review |
 | [Revolve][revolve-repo] | Enhanced | Research pipeline + CLAUDE.md auto-evolution |
 
@@ -397,4 +399,5 @@ Issues, feature requests, and PRs welcome.
 [lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
+[gsd-repo]: https://github.com/gsd-build/get-shit-done
 [readme-template]: https://github.com/othneildrew/Best-README-Template
