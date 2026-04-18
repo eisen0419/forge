@@ -8,7 +8,7 @@ argument-hint: "<ce-plan-path> [--phase N]"
 
 将 `/ce:plan` 产出的 plan 文档直接对接 GSD 的原生执行引擎，无需格式转换。
 
-**核心原则**：不做格式转换。将 CE plan 作为丰富 context 传入 GSD `/gsd:plan-phase`，让 GSD 用自己的原生格式生成 plans，然后自治执行。
+**核心原则**：不做格式转换。将 CE plan 作为丰富 context 传入 GSD `/gsd-plan-phase`，让 GSD 用自己的原生格式生成 plans，然后自治执行。
 
 **前置条件**：必须在目标项目目录下的 Claude session 中运行。GSD skills 绑定当前 session 的工作目录，跨目录调用会导致 `.planning/` 路径错误。
 
@@ -120,7 +120,7 @@ ls .claude/commands/gsd/ 2>/dev/null || ls ~/.claude/commands/gsd/ 2>/dev/null
 
 **检查 `.planning/` 是否存在**：
 
-- **不存在**：需要初始化。调用 `/gsd:new-project`，将 CE plan 的 Overview 和 Requirements Trace 作为项目描述输入。GSD 会交互式收集上下文并创建 PROJECT.md 和 .planning/ 结构。
+- **不存在**：需要初始化。调用 `/gsd-new-project`，将 CE plan 的 Overview 和 Requirements Trace 作为项目描述输入。GSD 会交互式收集上下文并创建 PROJECT.md 和 .planning/ 结构。
 
 - **已存在**：跳过初始化，直接进入步骤 3。
 
@@ -130,7 +130,7 @@ ls .claude/commands/gsd/ 2>/dev/null || ls ~/.claude/commands/gsd/ 2>/dev/null
 
 **3a. 运行 GSD discuss-phase**：
 
-调用 `/gsd:discuss-phase --auto`，在调用前将 CE plan 的关键信息作为上下文传入：
+调用 `/gsd-discuss-phase --auto`，在调用前将 CE plan 的关键信息作为上下文传入：
 
 ```
 以下是来自 CE plan 的项目信息，请基于此进行讨论：
@@ -153,7 +153,7 @@ ls .claude/commands/gsd/ 2>/dev/null || ls ~/.claude/commands/gsd/ 2>/dev/null
 
 **3b. 运行 GSD plan-phase**：
 
-调用 `/gsd:plan-phase`，让 GSD 生成原生 PLAN.md 文件。GSD 会自动计算 wave 分配、依赖关系、任务拆分。CE plan 的 Implementation Units 信息已在 discuss-phase 中注入，GSD 会参考这些信息但用自己的格式生成。
+调用 `/gsd-plan-phase`，让 GSD 生成原生 PLAN.md 文件。GSD 会自动计算 wave 分配、依赖关系、任务拆分。CE plan 的 Implementation Units 信息已在 discuss-phase 中注入，GSD 会参考这些信息但用自己的格式生成。
 
 **3c. 验证需求覆盖**：
 
@@ -173,7 +173,7 @@ grep -rh "requirements:" .planning/phases/*/  2>/dev/null
 调用 GSD 自治执行：
 
 ```
-/gsd:execute-phase <phase_number>
+/gsd-execute-phase <phase_number>
 ```
 
 GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context 的 subagents。
@@ -199,8 +199,8 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
 下一步：
   /ce:review              # 代码审查（推荐）
   /ce:compound            # 沉淀经验（如果有值得记录的模式）
-  /gsd:verify-work        # GSD 交互式验证
-  /gsd:session-report     # 查看 session 统计
+  /gsd-verify-work        # GSD 交互式验证
+  /gsd-session-report     # 查看 session 统计
 ```
 
 如果执行中断：
@@ -212,8 +212,8 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
 失败原因：<简要描述>
 
 恢复选项：
-  /gsd:resume-work        # 从中断点恢复
-  /gsd:debug              # 调试失败原因
+  /gsd-resume-work        # 从中断点恢复
+  /gsd-debug              # 调试失败原因
   /ce:run <path> --phase N  # 从指定 phase 重新执行
 ```
 
