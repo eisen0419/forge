@@ -34,6 +34,7 @@ Sister project: **[Revolve][revolve-repo]** -- self-evolving AI research archite
 - [What's Inside][whats-inside]
 - [Works With][works-with]
 - [Customization][customization]
+- [Testing][testing]
 - [Built With][built-with]
 - [Acknowledgments][acknowledgments]
 - [Contributing][contributing]
@@ -385,6 +386,22 @@ Start with Essential. Use it for a week. When you need CE/GSD/gstack/Waza routin
 
 </div>
 
+## Testing
+
+Forge includes a routing-system regression test:
+
+```bash
+node scripts/test-forge-routing.mjs
+```
+
+The test plan lives at [docs/forge-routing-system-test.md](docs/forge-routing-system-test.md). It validates the CE/GSD/gstack/Waza route matrix, setup guidance, `/forge-run` boundaries, template size budgets, plugin metadata, and rendered `CLAUDE.md` / `AGENTS.md` artifacts.
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
 ## Built With
 
 Forge's methodology is extracted from and works alongside these projects:
@@ -442,6 +459,7 @@ Issues, feature requests, and PRs welcome.
 [whats-inside]: #whats-inside
 [works-with]: #works-with
 [customization]: #customization
+[testing]: #testing
 [built-with]: #built-with
 [acknowledgments]: #acknowledgments
 [contributing]: #contributing

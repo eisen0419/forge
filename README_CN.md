@@ -34,6 +34,7 @@
 - [模板内容][whats-inside]
 - [兼容工具][works-with]
 - [自定义][customization]
+- [测试][testing]
 - [Built With][built-with]
 - [Acknowledgments][acknowledgments]
 - [参与贡献][contributing]
@@ -385,6 +386,22 @@ Claude：[先 grep 调用方]
 
 </div>
 
+## 测试
+
+Forge 包含一套路由系统回归测试：
+
+```bash
+node scripts/test-forge-routing.mjs
+```
+
+测试计划位于 [docs/forge-routing-system-test.md](docs/forge-routing-system-test.md)。它会验证 CE/GSD/gstack/Waza 路由矩阵、setup 指南、`/forge-run` 边界、模板行数预算、插件 metadata，以及渲染后的 `CLAUDE.md` / `AGENTS.md` 产出物。
+
+<div align="right">
+
+[![][back-to-top]][readme-top]
+
+</div>
+
 ## Built With
 
 Forge 的方法论提取自以下项目，并与它们协同工作：
@@ -442,6 +459,7 @@ Forge 的方法论提取自以下项目，并与它们协同工作：
 [whats-inside]: #模板内容
 [works-with]: #兼容工具
 [customization]: #自定义
+[testing]: #测试
 [built-with]: #built-with
 [acknowledgments]: #acknowledgments
 [contributing]: #参与贡献
