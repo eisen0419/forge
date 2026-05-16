@@ -1,5 +1,7 @@
 <div align="center" id="readme-top">
 
+<img src="images/logo.png" alt="Forge logo" width="96">
+
 ![Forge Banner][banner]
 
 [![License][license-badge]][license]
