@@ -27,7 +27,7 @@ Ask the user via AskUserQuestion:
 > Which Forge tier would you like?
 >
 > - **Essential** — Newcomers. Core rules only: coding standards, task management, git conventions, safety rules. Minimal overhead, easy to start.
-> - **Full** — Power users. Router-first methodology under ~200 lines: context pointers, do-not-introduce guardrails, CE/GSD/gstack routing, blast radius checks, local instruction files, hooks/memory guidance, and role mapping.
+> - **Full** — Power users. Router-first methodology under ~200 lines: context pointers, do-not-introduce guardrails, CE/GSD/gstack/Waza routing, blast radius checks, local instruction files, hooks/memory guidance, and role mapping.
 >
 > Which tier? (Essential / Full)
 
@@ -144,6 +144,9 @@ gstack — product/engineering/design/DX review, browser QA, Codex second opinio
   git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
   cd ~/.claude/skills/gstack && ./setup
 
+Waza — focused engineering habits: think, hunt, check, health, read, learn, write, and design:
+  npx skills add tw93/Waza -a claude-code -g -y
+
 Revolve — Research pipeline + CLAUDE.md auto-evolution:
   /plugin marketplace add https://github.com/eisen0419/revolve
   /plugin install revolve
@@ -162,12 +165,16 @@ gstack — install Codex skills:
   git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
   cd ~/gstack && ./setup --host codex
 
+Waza — focused engineering habits:
+  npx skills add tw93/Waza -a codex -g -y
+
 Route selection:
   - Small fixes: standalone Forge rules, CE ce-work, or GSD gsd-fast
   - CE-native work: ce-brainstorm -> ce-plan -> ce-work -> ce-code-review -> ce-compound
   - GSD-managed projects: gsd-map-codebase -> gsd-new-project -> discuss -> plan -> execute -> verify -> ship
   - Existing CE plan into GSD: forge-run <plan> as a bridge
   - Product/UI/DX/browser/release risk: add gstack office-hours/autoplan/qa/review gates
+  - Focused habits: Waza think/hunt/check/health/read/learn/write/design
 ```
 
 ## Step 8: Completion

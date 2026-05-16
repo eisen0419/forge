@@ -157,6 +157,7 @@ Forge works without add-ons, but Full tier can route to these systems when insta
 | CE | Run `/plugin marketplace add EveryInc/compound-engineering-plugin`, then `/plugin install compound-engineering` inside Claude Code | Run `codex plugin marketplace add EveryInc/compound-engineering-plugin`, then `bunx @every-env/compound-plugin install compound-engineering --to codex`, then install `compound-engineering` from Codex `/plugins` |
 | GSD | Run `npx get-shit-done-cc@latest` and choose Claude Code | Run `npx get-shit-done-cc@latest` and choose Codex. Codex CLI 0.130.0+ is recommended |
 | gstack | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack && cd ~/gstack && ./setup --host codex` |
+| Waza | `npx skills add tw93/Waza -a claude-code -g -y` or `/plugin marketplace add tw93/Waza` then `/plugin install waza@waza` | `npx skills add tw93/Waza -a codex -g -y` |
 
 <div align="right">
 
@@ -199,7 +200,7 @@ You're running Claude Code or Codex with a multi-agent workflow. Full tier adds:
 - **Hooks and memory guidance** -- keep hooks objective and store long-term learning in project artifacts
 - **Knowledge compounding** -- hard-won debugging lessons get saved to `docs/solutions/` so future sessions don't repeat the same mistakes
 
-This tier works standalone, and it can also route work across CE, GSD, and gstack. Use CE for strategy, brainstorming, planning, review, and knowledge compounding; use GSD when a project needs durable `.planning/` state and phase-based execution; use gstack when product scope, design quality, DX, browser QA, or release confidence matter.
+This tier works standalone, and it can also route work across CE, GSD, gstack, and Waza. Use CE for strategy, brainstorming, planning, review, and knowledge compounding; use GSD when a project needs durable `.planning/` state and phase-based execution; use gstack when product scope, design quality, DX, browser QA, or release confidence matter; use Waza for focused engineering habits such as lean planning, root-cause debugging, code/release checks, agent health, URL/PDF reading, research, writing, and UI craft.
 
 <div align="right">
 
@@ -215,8 +216,8 @@ This tier works standalone, and it can also route work across CE, GSD, and gstac
 | Decision Framework | Both | Three questions before any change -- cut scope creep early |
 | Task Routing | Both | Route tasks to right workflow -- skip ceremony for trivial changes |
 | Do Not Introduce | Both | Block unapproved dependencies, frameworks, CI, schema, and secret-bearing changes |
-| Multi-Agent Workflow Router | Full | Choose the right route across CE, GSD, gstack, or standalone Forge |
-| Specialized Flow Priority | Full | Prefer CE/GSD/gstack for debug, TDD, verification, and review; use Superpowers only as fallback |
+| Multi-Agent Workflow Router | Full | Choose the right route across CE, GSD, gstack, Waza, or standalone Forge |
+| Specialized Flow Priority | Full | Prefer CE/GSD/gstack/Waza for planning, debug, verification, review, health, and content workflows; use Superpowers only as fallback |
 | Verification | Both | Delivery gate -- no claiming done without evidence |
 | Blast Radius | Full | Assess impact before touching exported interfaces |
 | Local Instruction Files | Full | Add local `CLAUDE.md` / `AGENTS.md` guardrails for sensitive subtrees |
@@ -237,8 +238,11 @@ Forge no longer assumes one universal pipeline. Pick the shortest route that mat
 | Existing larger codebase managed by GSD | `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` → `/gsd-verify-work` → `/gsd-ship` |
 | Existing CE plan that should run through GSD | `/ce-plan` → `/forge-run <plan>` → `/gsd-verify-work` → `/ce-code-review` or `/gsd-code-review` |
 | Product, UI, DX, browser QA, or release risk | gstack `/office-hours` or `/autoplan` before implementation; `/qa`, `/design-review`, `/devex-review`, or `/ship` before release |
+| Focused engineering habit | Waza `/think`, `/hunt`, `/check`, `/health`, `/read`, `/learn`, `/write`, or `/design` |
 
 `/forge-run` is intentionally narrow: it is the CE-plan-to-GSD bridge. It is useful when you already have a CE plan and want GSD's native phase planning and wave execution, but it is not the default path for every medium or large task.
+
+Waza is also intentionally narrow: it is not a GSD-style project state machine or a gstack-style release factory. It is the best fit when the task is one focused habit: diagnose a bug, review a diff, audit agent health, read a URL/PDF, research a topic, polish prose, or sharpen UI direction.
 
 ### Instruction File Best Practices
 
@@ -322,6 +326,7 @@ Claude: [greps callers first]
 | [Compound Engineering][ce-plugin] | Enhanced | Strategy, ideation, brainstorming, planning, execution, review, product pulse, and knowledge compounding |
 | [GSD][gsd-repo] | Enhanced | Codebase mapping, `.planning/` state, phase planning/execution, workstreams, verification, and shipping |
 | [gstack][gstack-repo] | Enhanced | Product and scope challenge, engineering/design/DX review, browser QA, Codex second opinion, and release gates |
+| [Waza][waza-repo] | Enhanced | Focused engineering habits: think, hunt, check, health, read, learn, write, and design |
 | [Revolve][revolve-repo] | Enhanced | Research pipeline + CLAUDE.md auto-evolution |
 
 <div align="right">
@@ -336,7 +341,7 @@ Every section in the generated CLAUDE.md or AGENTS.md is independent. Remove wha
 
 ### Remove a section
 
-Just delete it. The other sections don't depend on it. If you do not use CE, GSD, or gstack, remove those route rows and keep the standalone Forge workflow.
+Just delete it. The other sections don't depend on it. If you do not use CE, GSD, gstack, or Waza, remove those route rows and keep the standalone Forge workflow.
 
 ### Adjust thresholds
 
@@ -372,7 +377,7 @@ Add your own sections anywhere in the file:
 
 ### Recommended path
 
-Start with Essential. Use it for a week. When you need CE/GSD/gstack routing, local guardrails, hooks guidance, or stronger blast-radius rules, promote to Full.
+Start with Essential. Use it for a week. When you need CE/GSD/gstack/Waza routing, local guardrails, hooks guidance, or stronger blast-radius rules, promote to Full.
 
 <div align="right">
 
@@ -390,6 +395,7 @@ Forge's methodology is extracted from and works alongside these projects:
 | [Compound Engineering][ce-plugin] | AI-powered development workflow plugin by Kieran Klaassen / Every | Methodology source -- Forge's task routing, quality gates, and review patterns are inspired by CE's workflow |
 | [GSD][gsd-repo] | Spec-driven project workflow for many coding agents | Execution companion -- durable planning state, phase execution, verification, and shipping workflows |
 | [gstack][gstack-repo] | Garry Tan's AI software factory workflow | Review companion -- product/engineering/design/DX gates, browser QA, and release discipline |
+| [Waza][waza-repo] | Engineering habits as AI skills by Tw93 | Habit companion -- lean planning, root-cause debugging, diff/release checks, agent health, reading, research, writing, and UI craft |
 | [Revolve][revolve-repo] | Self-evolving AI research architecture | Recommended companion -- automates the "Evolve CLAUDE.md" step in the flywheel |
 | [Best-README-Template][readme-template] | Popular README template by Othneil Drew | README structure and visual patterns |
 
@@ -402,6 +408,7 @@ Forge's methodology is extracted from and works alongside these projects:
 ## Acknowledgments
 
 - [Kieran Klaassen](https://github.com/kieranklaassen) and [Every](https://every.to) -- for [Compound Engineering][ce-plugin], the workflow methodology that Forge extracts and generalizes. CE's task routing, quality gates, review discipline, and knowledge compounding patterns are foundational references for Forge's templates
+- [Tw93](https://github.com/tw93) -- for [Waza][waza-repo], whose focused skill design influenced Forge's lighter routing for debug, review, health, research, writing, and UI craft
 - [Anthropic](https://anthropic.com) -- for Claude Code and the CLAUDE.md instruction system that makes workflow-as-code possible
 - [Othneil Drew](https://github.com/othneildrew) -- for [Best-README-Template][readme-template], the README layout inspiration
 - [EverMind AI](https://github.com/EverMind-AI) -- for [EverMemOS](https://github.com/EverMind-AI/EverMemOS), README visual design reference
@@ -462,4 +469,5 @@ Issues, feature requests, and PRs welcome.
 [revolve-repo]: https://github.com/eisen0419/revolve
 [gsd-repo]: https://github.com/gsd-build/get-shit-done
 [gstack-repo]: https://github.com/garrytan/gstack
+[waza-repo]: https://github.com/tw93/Waza
 [readme-template]: https://github.com/othneildrew/Best-README-Template

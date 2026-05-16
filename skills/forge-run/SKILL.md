@@ -16,6 +16,7 @@ argument-hint: "<ce-plan-path> [--phase N]"
 - 项目已经完整由 GSD 管理：直接留在 `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` 主循环。
 - CE plan 可以直接执行：优先 `/ce-work`，执行后 `/ce-code-review` 和 `/ce-compound`。
 - 任务主要是产品范围、设计、DX、浏览器 QA 或发布风险：先用 gstack `/office-hours`、`/autoplan`、`/qa`、`/design-review`、`/devex-review` 或 `/ship`。
+- 任务是单点工程习惯：debug、review、release follow-through、agent health、URL/PDF 读取、研究或写作，优先用 Waza `/hunt`、`/check`、`/health`、`/read`、`/learn`、`/write`。
 
 ## 用法
 

@@ -73,19 +73,23 @@ Use Forge as the discipline layer, then route to the strongest installed workflo
 | GSD-managed project | `gsd-map-codebase` -> `gsd-new-project` -> `gsd-discuss-phase` -> `gsd-plan-phase` -> `gsd-execute-phase` -> `gsd-verify-work` -> `gsd-ship` |
 | CE plan into GSD | Pass the CE plan into GSD discuss/plan/execute; on Claude Code this may be `/forge-run <plan>` |
 | Product, UI, DX, browser QA, release risk | gstack `office-hours` / `autoplan` before implementation; `qa`, `design-review`, `devex-review`, or `ship` before release |
+| Focused engineering habit | Waza `think`, `hunt`, `check`, `health`, `read`, `learn`, `write`, or `design` |
 
-Avoid double ceremony. Do not run CE planning, GSD initialization, gstack autoplan, and local planning for every task.
+Avoid double ceremony. Do not run CE planning, GSD initialization, gstack autoplan, Waza think, and local planning for every task.
 
 ## Specialized Flow Priority
 
-Debug / TDD / completion verification / code review should prefer Forge + CE / GSD / gstack. Superpowers are fallback discipline only.
+Debug / planning / verification / review should prefer Forge + CE / GSD / gstack / Waza. Superpowers are fallback discipline only.
 
 | Scenario | Preferred entry | Superpowers fallback |
 |----------|-----------------|----------------------|
-| Debug | UI/browser: gstack `qa` or `investigate`; GSD: `gsd-debug`; general bug: CE `ce-debug`; small bug: Forge investigation | `systematic-debugging` |
-| TDD / test design | gstack `plan-eng-review`; CE `ce-plan` / `ce-work`; GSD `plan-phase` / `execute-phase` | `test-driven-development` for high-risk shared logic, state machines, auth, payments, migrations |
-| Completion verification | Forge Verification Rules + Change Delivery Gate; GSD `gsd-verify-work`; gstack `qa`; CE/GSD review | `verification-before-completion` as a reminder, not a default workflow |
-| Code review | CE `ce-code-review`; gstack `review`; GSD `gsd-code-review`; gstack `cso` for security | Superpowers review only if requested or no stronger tool is available |
+| Plan / value judgment | CE `ce-strategy` / `ce-brainstorm` / `ce-plan`; Waza `think` for lean decision-complete plans | Short plan with scope, risks, verification |
+| Debug | Waza `hunt` for root cause; gstack `qa` for UI/browser; GSD `gsd-debug`; CE `ce-debug` | `systematic-debugging` |
+| TDD / test design | gstack `plan-eng-review`; CE `ce-plan` / `ce-work`; GSD `plan-phase` / `execute-phase`; Waza `think` for test strategy | `test-driven-development` for high-risk shared logic, state machines, auth, payments, migrations |
+| Completion verification | Waza `check`; Forge Verification Rules; GSD `gsd-verify-work`; gstack `qa`; CE/GSD review | `verification-before-completion` as a reminder, not a default workflow |
+| Code review / release follow-through | Waza `check`; CE `ce-code-review`; gstack `review` / `ship`; GSD `gsd-code-review` | Superpowers review only if requested or no stronger tool is available |
+| Agent health / instruction drift | Waza `health` | Manual config audit |
+| URL / research / prose | Waza `read`, `learn`, or `write` | Native fetch/research/editing |
 
 ## Do Not Introduce
 
