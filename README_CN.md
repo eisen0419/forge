@@ -228,7 +228,7 @@ node scripts/test-forge-routing.mjs
 
 <!-- Images -->
 [banner]: images/banner.png
-[tier-diagram]: images/tiers.svg
+[tier-diagram]: images/tiers.png
 
 <!-- Badges -->
 [license-badge]: https://img.shields.io/badge/License-MIT-blue?style=flat-square
