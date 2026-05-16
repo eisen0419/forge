@@ -5,20 +5,17 @@
 [![License][license-badge]][license]
 [![Claude Code][claude-badge]][claude-code]
 [![Plugin][plugin-badge]][install-url]
-
-**Claude Code 与 Codex AI 辅助开发工作流入门套件**
-
-经过实战验证的 Agent 指令模板 — `CLAUDE.md`、`AGENTS.md`、任务路由、上下文指针、质量门禁、知识沉淀。
-
-[快速开始][quick-start] •
-[使用示例][usage-examples] •
-[模板内容][whats-inside] •
-[自定义][customization]
-
-姊妹项目：**[Revolve][revolve-repo]** — 自进化 AI 研究架构
-
 [![English][lang-en-badge]][lang-en]
 [![简体中文][lang-zh-badge]][lang-zh]
+
+**面向 Claude Code、Codex 和多 Agent 工程工作流的 router-first 指令模板。**
+
+Forge 生成实用的 `CLAUDE.md` 与 `AGENTS.md`，保持主指令短小，并在独立规则、Compound Engineering、GSD、gstack、Waza、Revolve 之间做任务路由。
+
+[快速开始][quick-start] •
+[路由模型][routing-model] •
+[模板][templates] •
+[测试][testing]
 
 </div>
 
@@ -27,424 +24,189 @@
 <details open>
 <summary><kbd>目录</kbd></summary>
 
-- [为什么用 Forge？][why-forge]
-- [两个层级][two-tiers]
+- [为什么用 Forge][why-forge]
 - [快速开始][quick-start]
-- [使用示例][usage-examples]
-- [模板内容][whats-inside]
-- [兼容工具][works-with]
-- [自定义][customization]
+- [两个层级][tiers]
+- [路由模型][routing-model]
+- [模板][templates]
+- [工作流增强][workflow-add-ons]
 - [测试][testing]
+- [仓库结构][repository-layout]
 - [Built With][built-with]
 - [Acknowledgments][acknowledgments]
-- [参与贡献][contributing]
 - [许可证][license-section]
 
 </details>
 
 <br>
 
-## 为什么用 Forge？
+## 为什么用 Forge
 
-**没有 Forge 时：** 你让 Claude 重构一个模块。它修改了 3 个导出函数，却没有检查调用方。本地测试通过，但生产环境中 2 个下游服务挂了。你花了一小时排查出了什么问题。
+AI coding agent 很强，但默认行为容易漂移：
 
-**有了 Forge 后：** Claude 读取了你 CLAUDE.md 中的爆炸半径协议：*"修改任何导出函数前，先 grep 所有调用方并评估影响。"* 它找到了 2 个调用方，将其加入验证清单，在声称完成之前把所有相关内容都测了一遍。
+- 小改动过度规划，高风险改动反而规划不足。
+- 局部修复时顺手新增依赖、migration 或 CI 变更。
+- 没有新鲜验证证据，却声称测试通过。
+- 把每个工作流工具都当成所有任务的入口。
 
-这只是一条规则。Forge 给你提供一组紧凑的实战模式 — 它们从数百次真实会话中提炼而来，而非凭空捏造。
+Forge 把项目指令文件变成一层 **router + guardrail**：告诉 agent 该读什么、不该引入什么、什么时候升级流程、怎样验证，以及哪个专项工作流最适合当前任务。
 
-Agent 指令文件很强大，但从零构建一份需要数月的试错。大多数开发者永远不会自行发现上下文指针、禁止引入清单、局部指令文件、客观 hooks 或爆炸半径协议这些模式。Forge 给你骨架，你在实际使用中长出肌肉。
-
-### 为什么不直接复制别人的指令文件？
-
-| 随机指令文件 | Forge |
-|---------------|-------|
-| 方法论和个人配置混在一起 | 只提取通用模式 |
-| 一刀切 | 两个层级：Essential（新手）+ Full（高级用户） |
-| 复制然后祈祷 | `/forge-setup` 问你的技术栈，生成定制输出 |
-| 没有解释的规则 | 短小、可执行的规则，并用指针链接到更深文档 |
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 两个层级
-
-![层级对比][tier-diagram]
-
-| | Essential | Full |
-|---|-----------|------|
-| **适合** | Claude Code 新手 | 多插件工作流的高级用户 |
-| **形态** | 紧凑 guardrails | Router-first，控制在约 200 行以内 |
-| **包含** | 任务路由、上下文指针、禁止引入清单、验证纪律、Git 规范、安全规则 | Essential 全部 + 多 Agent 路由、专项流程优先级、爆炸半径、局部指令文件、hooks / memory 指南 |
-| **配置时间** | ~5 分钟 | ~10 分钟 |
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
+目标不是写一份巨型 prompt，而是写一份在压力下仍能被 agent 执行的短指令。
 
 ## 快速开始
 
-### 使用插件（推荐）
-
-在 Claude Code 中运行：
+### Claude Code 插件
 
 ```text
 /plugin marketplace add https://github.com/eisen0419/forge
 /plugin install forge
+/forge-setup
 ```
 
-然后在任意项目中运行 `/forge-setup`。向导可以生成 `CLAUDE.md`、`AGENTS.md` 或两者：
+setup 向导可以生成：
 
-```
-> /forge-setup
+- Claude Code 使用的 `CLAUDE.md`
+- Codex 使用的 `AGENTS.md`
+- 同时生成两者
 
-? 你想配置哪个 Agent 目标？
-  - Claude Code — 生成 CLAUDE.md
-  - Codex — 生成 AGENTS.md
-  - Both — 两者都生成
-> Both
-
-? 你想使用哪个 Forge 层级？
-  - Essential — 仅核心规则：编码规范、任务管理、Git、安全
-  - Full — Router-first 方法论：上下文指针、禁止引入清单、多 Agent 路由
-> Essential
-
-? 你叫什么名字？
-> Alice
-
-? 你的主要平台是什么？(macOS / Linux / Windows+WSL)
-> macOS
-
-? Agent 响应的首选语言？
-> English
-
-? Git 提交风格？(默认：conventional commits)
-> [Enter]
-
-正在检测环境... zsh, npm, VS Code
-
-正在生成 Essential 指令文件...
-已写入 ./CLAUDE.md 和 ./AGENTS.md
-
-推荐安装以下插件来增强你的工作流：
-  /plugin marketplace add EveryInc/compound-engineering-plugin
-  /plugin install compound-engineering
-```
-
-### 不使用插件
+### 手动使用
 
 Claude Code：
 
-1. 复制 `templates/essential.md` 或 `templates/full.md` 到你的项目，重命名为 `CLAUDE.md`
-2. 替换所有 `{{VARIABLES}}` 为你的实际值
-3. 完成
+```bash
+cp templates/full.md CLAUDE.md
+```
 
 Codex：
 
-1. 复制 `templates/targets/codex/essential.md` 或 `templates/targets/codex/full.md` 到你的项目，重命名为 `AGENTS.md`
-2. 替换所有 `{{VARIABLES}}` 为你的实际值
-3. 完成
-
-### 可选工作流增强
-
-Forge 可以独立使用；Full 层级在安装以下系统后会自动按任务路由：
-
-| 增强项 | Claude Code | Codex |
-|--------|-------------|-------|
-| CE | 在 Claude Code 中运行 `/plugin marketplace add EveryInc/compound-engineering-plugin`，再运行 `/plugin install compound-engineering` | 运行 `codex plugin marketplace add EveryInc/compound-engineering-plugin`，再运行 `bunx @every-env/compound-plugin install compound-engineering --to codex`，然后在 Codex `/plugins` 中安装 `compound-engineering` |
-| GSD | 运行 `npx get-shit-done-cc@latest`，选择 Claude Code | 运行 `npx get-shit-done-cc@latest`，选择 Codex。建议 Codex CLI 0.130.0+ |
-| gstack | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack && cd ~/gstack && ./setup --host codex` |
-| Waza | `npx skills add tw93/Waza -a claude-code -g -y`，或 `/plugin marketplace add tw93/Waza` 后 `/plugin install waza@waza` | `npx skills add tw93/Waza -a codex -g -y` |
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 使用示例
-
-### 启动新项目
-
-你刚初始化了一个新 repo，希望 Claude 从第一天起就遵循一致的规范。
-
-```
-> /forge-setup
+```bash
+cp templates/targets/codex/full.md AGENTS.md
 ```
 
-选择 Essential 层级。2 分钟内你就有了一份包含任务路由、Git 规范和安全规则的 `CLAUDE.md` 或 `AGENTS.md`。Agent 会立即开始正确路由任务 — 小修复直接实现，多步骤功能先出计划。
+然后把 `{{VARIABLES}}` 替换成你的项目配置。
 
-### 初学者使用 Essential 层级
+## 两个层级
 
-你刚接触 AI coding agent，不想被繁琐的流程压垮。Essential 给你一组紧凑规则，覆盖基础工作方式：
+![Forge tiers and routing][tier-diagram]
 
-- **任务路由** 防止 Agent 把一个 typo 修复过度工程化
-- **验证纪律** 阻止 Agent 在没有实际运行测试的情况下声称"测试通过"
-- **安全规则** 屏蔽 `rm -rf` 或 `git push --force` 等破坏性命令
-- **Git 规范** 在团队中统一 commit message 风格
+| 层级 | 适合 | 提供什么 |
+|------|------|----------|
+| Essential | 新仓库、小项目、第一次配置 agent | 上下文指针、任务路由、禁止引入清单、验证纪律、Git 和安全规则 |
+| Full | 多 Agent 工作流和更高风险项目 | Essential 全部能力，加上 CE/GSD/gstack/Waza 路由、爆炸半径检查、局部指令指南、hooks/memory 指南和角色映射 |
 
-无需任何插件。只需在你的 repo 里放一个 `CLAUDE.md` 或 `AGENTS.md` 文件。
+两个层级都刻意保持短小。Full 模板控制在约 200 行以内。
 
-### 高级用户使用 Full 层级 + 插件
+## 路由模型
 
-你正在使用 Claude Code 或 Codex 的多 Agent 工作流。Full 层级额外增加：
-
-- **上下文指针** — 只在需要时指向具体文档，不把所有架构细节塞进主指令
-- **禁止引入清单** — 阻止未经批准的依赖、框架、schema、CI 或带 secret 风险的状态变更
-- **角色系统** — 将抽象角色（设计者、审查者）映射到 AI 提供商
-- **爆炸半径协议** — 在修改任何导出函数之前，Agent 会 grep 所有调用方并将其加入验证清单
-- **局部指令文件指南** — 在 auth、payments、infra、migrations 等敏感目录下增加局部护栏
-- **Hooks 与 memory 指南** — hooks 只做客观检查，长期经验沉淀到项目文档
-- **知识沉淀** — 艰难调试出来的经验教训保存到 `docs/solutions/`，让未来的会话不再重蹈覆辙
-
-此层级可独立使用，也可以在 CE、GSD、gstack、Waza 之间做任务路由：CE 负责 strategy、brainstorm、plan、review 和知识沉淀；GSD 负责 `.planning/` 项目状态、phase 执行与交付；gstack 负责产品范围、设计质量、DX、浏览器 QA 和发布闸门；Waza 负责轻量工程习惯，例如 lean planning、根因 debug、代码/发布检查、agent health、URL/PDF 读取、研究、写作和 UI 打磨。
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 模板内容
-
-| 章节 | 层级 | 作用 |
-|------|------|------|
-| 上下文指针 | 两者 | 保持主指令短小，只在需要时指向具体文档 |
-| 决策框架 | 两者 | 任何改动前三个问题 — 尽早阻断范围蔓延 |
-| 任务路由 | 两者 | 按任务类型选择正确的工作流 — 琐碎改动跳过完整流程 |
-| 禁止引入清单 | 两者 | 阻止未经批准的依赖、框架、CI、schema 和 secret 风险变更 |
-| 多 Agent 工作流路由 | Full | 在 CE、GSD、gstack、Waza 或独立 Forge 流程之间选择最合适路径 |
-| 专项流程优先级 | Full | Planning、debug、验证、review、health 和内容工作优先走 CE/GSD/gstack/Waza；Superpowers 只兜底 |
-| 验证纪律 | 两者 | 交付门禁 — 没有验证证据不得声称完成 |
-| 爆炸半径 | Full | 修改导出接口前先评估影响范围 |
-| 局部指令文件 | Full | 给敏感目录添加局部 `CLAUDE.md` / `AGENTS.md` 护栏 |
-| Hooks 与 Memory | Full | hooks 做客观检查，长期记忆放项目文档 |
-| 角色系统 | Full | 将抽象角色（设计者、审查者）映射到 AI 提供商 |
-| 知识沉淀 | Full | 将值得保留的经验提取到 `docs/solutions/` |
-| Git 规范 | 两者 | 分支命名、提交格式、硬性禁令 |
-| 安全规则 | 两者 | 禁止破坏性命令、禁止硬编码密钥 |
-
-### 多 Agent 路由矩阵
-
-Forge 不再假设只有一条通用流水线。按任务类型选择最短且足够稳的路径：
+Forge 不假设只有一条通用流水线。它选择“能保住质量的最短路径”。
 
 | 场景 | 推荐路径 |
 |------|----------|
-| 小修复或单文件改动 | 独立 Forge 规则、CE `/ce-work`，或 GSD `/gsd-fast` |
-| 已安装 CE 的标准功能 | 必要时 `/ce-strategy` → `/ce-brainstorm` → `/ce-plan` → `/ce-work` → `/ce-code-review` → `/ce-compound` |
-| 由 GSD 管理的大型既有代码库 | `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` → `/gsd-verify-work` → `/gsd-ship` |
-| 已有 CE plan，希望交给 GSD 执行 | `/ce-plan` → `/forge-run <plan>` → `/gsd-verify-work` → `/ce-code-review` 或 `/gsd-code-review` |
-| 产品、UI、DX、浏览器 QA 或发布风险较高 | 实现前加 gstack `/office-hours` 或 `/autoplan`；发布前加 `/qa`、`/design-review`、`/devex-review` 或 `/ship` |
+| typo、小修复、单文件改动 | 独立 Forge 规则、CE `/ce-work`，或 GSD `/gsd-fast` |
+| 功能塑形或产品判断 | CE strategy/brainstorm/plan，或 Waza `/think` 做轻量 decision-complete plan |
+| 已由 GSD 管理的项目 | GSD map/new-project/discuss/plan/execute/verify/ship 主循环 |
+| 已有 CE plan，希望交给 GSD 执行 | `/forge-run <plan>` 作为 CE plan 到 GSD 的桥 |
+| 产品范围、UI 质量、浏览器 QA、发布信心 | gstack office-hours、autoplan、QA、design review、DX review 或 ship gates |
 | 单点工程习惯 | Waza `/think`、`/hunt`、`/check`、`/health`、`/read`、`/learn`、`/write` 或 `/design` |
+| 共享 API、schema、auth、payments、CI、依赖 | 先走 Forge 爆炸半径检查，再做定向验证 |
 
-`/forge-run` 的定位是 CE plan 到 GSD 的桥接器：当你已经有 CE plan，并想利用 GSD 原生 phase planning 与 wave 执行时使用。它不是所有中大型任务的默认入口。
+Waza 是 **单点工程习惯** 层。它不是 GSD 式项目状态机，也不是 gstack 式发布工厂。适合用在边界清晰的任务上：根因 debug、diff review、release follow-through、agent health、URL/PDF 读取、研究、写作或 UI 打磨。
 
-Waza 的定位同样要保持窄：它不是 GSD 式项目状态机，也不是 gstack 式发布工厂。它最适合单点习惯任务：定位 bug、审查 diff、检查 agent health、读取 URL/PDF、研究主题、润色文字或收敛 UI 方向。
+`/forge-run` 也保持窄定位：只负责把已有 CE plan 交给 GSD 执行，不作为所有中大型任务的默认入口。
 
-### 指令文件最佳实践
+## 模板
 
-Forge 模板采用 router-first 风格：
+Forge 模板是 router-first 指令文件，不是架构说明书。
 
-| 实践 | Forge 如何落地 |
-|------|----------------|
-| 保持短小 | Full 模板控制在约 200 行以内，不塞长篇架构说明 |
-| 规则可验证 | 规则写成要运行什么、不要改什么、需要什么证据 |
-| 使用指针 | 架构、决策、解决方案、GSD 状态放进文档，不塞进主指令 |
-| 写清禁止项 | `Do Not Introduce` 阻止未经批准的依赖、框架、CI、schema 和 secret 风险变更 |
-| 局部护栏 | auth、billing、payments、infra、migrations、生成 SDK 等目录可放局部 `CLAUDE.md` / `AGENTS.md` |
-| hooks 保持客观 | hooks 只做依赖/schema/CI 警告和验证提示，不做主观判断 |
-| 记忆进 artifact | 优先使用 `docs/solutions/`、`docs/decisions/`、`.planning/` 和 CE compound notes，而不是无限膨胀主指令 |
+| 章节 | Essential | Full | 作用 |
+|------|-----------|------|------|
+| Context Pointers | 是 | 是 | 只在需要时指向 README、架构文档、决策、解决方案和 `.planning/` |
+| Task Routing | 是 | 是 | 小任务轻量处理，高风险任务结构化处理 |
+| Do Not Introduce | 是 | 是 | 阻止未经批准的依赖、包管理器、CI、schema、migration 和 secret 风险状态 |
+| Verification Rules | 是 | 是 | 防止没有证据的“完成”声明 |
+| Multi-Agent Router | 否 | 是 | 在 Forge、CE、GSD、gstack、Waza、Revolve 之间选择路径 |
+| Blast Radius | 否 | 是 | 修改共享接口前搜索调用方和依赖 |
+| Local Instruction Files | 否 | 是 | 为 auth、payments、infra、migrations、生成 SDK 等目录增加局部护栏 |
+| Hooks And Memory | 否 | 是 | hooks 只做客观检查，长期经验沉淀到文档 |
 
-### 关键规则实战演示
+推荐文件分工：
 
-**任务路由** 自动匹配投入与任务规模：
+- 根目录 `CLAUDE.md` 或 `AGENTS.md`：路由、护栏、验证。
+- 敏感子目录的局部 `CLAUDE.md` / `AGENTS.md`：局部风险和必跑检查。
+- `docs/solutions/`：可复用修复和经验。
+- `docs/decisions/`：架构决策。
+- `.planning/`：当 GSD 负责执行时保存项目状态。
 
-```
-你："修复 footer 里的 typo"
-Claude：[路由为轻量任务 — 直接修复，无需规划开销]
+## 工作流增强
 
-你："添加 OAuth 用户认证"
-Claude：[路由为中大型任务 — 先启动 /ce-plan，识别 6 个子任务，
-         在写一行代码之前先问用哪个 OAuth 提供商]
-```
+Forge 可以独立使用；安装以下系统后，Full 层级会按任务路由到对应能力。
 
-**禁止引入清单** 防止技术栈悄悄漂移：
+| 增强项 | Claude Code 安装 | Codex 安装 | 最适合 |
+|--------|------------------|------------|--------|
+| [Compound Engineering][ce-plugin] | `/plugin marketplace add EveryInc/compound-engineering-plugin` 后 `/plugin install compound-engineering` | `codex plugin marketplace add EveryInc/compound-engineering-plugin`，再运行 `bunx @every-env/compound-plugin install compound-engineering --to codex` | Strategy、ideation、planning、review、product pulse、知识沉淀 |
+| [GSD][gsd-repo] | `npx get-shit-done-cc@latest` | `npx get-shit-done-cc@latest` 后选择 Codex | 持久 `.planning/`、代码库扫描、phase 执行、验证和发布 |
+| [gstack][gstack-repo] | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack && cd ~/gstack && ./setup --host codex` | 产品挑战、UI/design/DX review、浏览器 QA、发布信心 |
+| [Waza][waza-repo] | `npx skills add tw93/Waza -a claude-code -g -y`，或 `/plugin marketplace add tw93/Waza` 后 `/plugin install waza@waza` | `npx skills add tw93/Waza -a codex -g -y` | 单点习惯：think、hunt、check、health、read、learn、write、design |
+| [Revolve][revolve-repo] | `/plugin marketplace add https://github.com/eisen0419/revolve` 后 `/plugin install revolve` | 直接作为 companion workflow 使用仓库 | 研究 pipeline 和指令进化 |
 
-```
-你："加一个简单的 CSV 导出"
-Claude：[检查 Do Not Introduce]
-  未经批准不新增 CSV 库。
-  改用现有标准库 / 项目 helper。
-```
-
-没有这条规则，Agent 很容易“好心”新增依赖、测试框架或构建工具，后面再慢慢付兼容性成本。
-
-**验证纪律** 消除虚假的成功声明：
-
-```
-没有 Forge：
-  Claude："测试通过！"（实际上从未运行过测试）
-
-有了 Forge：
-  Claude：运行 `npm test`
-  输出：47 passed, 0 failed, 2 skipped
-  Claude："47 个测试通过。2 个跳过的测试是不相关的日期格式化
-           测试，标记为平台特定。可以安全提交。"
-```
-
-**爆炸半径协议** 在破坏性变更上线前将其拦截：
-
-```
-你："把 getUserById 函数改名为 findUser"
-
-Claude：[先 grep 调用方]
-  找到 4 个调用方：
-    - src/api/routes/users.ts:23
-    - src/api/routes/admin.ts:41
-    - src/services/auth.ts:87
-    - tests/integration/user.test.ts:12
-
-  正在更新全部 4 个调用点 + 函数定义。
-  正在对受影响的模块运行测试...
-```
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 兼容工具
-
-| 工具 | 状态 | 增强内容 |
-|------|------|---------|
-| 独立使用 | 可用 | 无需任何插件 — 方法论完全在 `CLAUDE.md` 或 `AGENTS.md` 中 |
-| Codex | 可用 | 使用 `templates/targets/codex/*` 生成 `AGENTS.md` 工作流文件 |
-| [Compound Engineering][ce-plugin] | 增强 | Strategy、ideation、brainstorm、plan、执行、review、product pulse 与知识沉淀 |
-| [GSD][gsd-repo] | 增强 | 代码库扫描、`.planning/` 状态、phase 规划/执行、workstreams、验收与发布 |
-| [gstack][gstack-repo] | 增强 | 产品/范围挑战、工程/设计/DX 审查、浏览器 QA、Codex second opinion 与发布闸门 |
-| [Waza][waza-repo] | 增强 | 单点工程习惯：think、hunt、check、health、read、learn、write 与 design |
-| [Revolve][revolve-repo] | 增强 | 研究 pipeline + CLAUDE.md 自动进化 |
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 自定义
-
-生成的 CLAUDE.md 或 AGENTS.md 中每个章节都是独立的。删除不需要的，调整阈值，添加项目规则。主文件保持短小，把深层信息用指针链接到文档。
-
-### 删除某个章节
-
-直接删掉即可。其他章节不依赖于它。如果你不用 CE、GSD、gstack 或 Waza，可以删掉对应路由行，保留独立 Forge 流程。
-
-### 调整阈值
-
-任务路由默认以"3+ 步骤"作为触发完整规划的条件。如果你想减少流程开销，可以修改它：
-
-```markdown
-| **中大型** | 5+ 步骤、架构决策 | 规划 -> 实现 -> 审查 |
-```
-
-`Do Not Introduce` 清单默认是通用版。你可以加入项目特定禁区：
-
-```markdown
-- 不要引入 Redux；本项目使用 Zustand。
-- 不要引入 Jest；本仓库使用 Vitest。
-- 未经明确批准不要新增 migration。
-```
-
-### 添加项目特定规则
-
-在文件任意位置添加你自己的章节：
-
-```markdown
-## API 规范
-- 所有端点返回 `{ data, error, meta }` 信封格式
-- 列表端点使用基于游标的分页
-- 速率限制：每个 API Key 每分钟 100 次请求，超限返回 429 并携带 Retry-After 头
-
-## 数据库规则
-- 所有迁移必须可回滚
-- 应用代码中禁止裸 SQL — 使用 query builder
-- 在 WHERE 或 JOIN 子句中使用的列必须建索引
-```
-
-### 推荐路径
-
-从 Essential 开始。使用一周。当你需要 CE/GSD/gstack/Waza 路由、局部护栏、hooks 指南或更强的爆炸半径规则时，再升级到 Full。
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
+Full 模板会明确写入 CE/GSD/gstack/Waza，让 agent 选择正确工具，而不是把所有流程叠在一起。
 
 ## 测试
 
-Forge 包含一套路由系统回归测试：
+Forge 包含路由系统回归测试：
 
 ```bash
 node scripts/test-forge-routing.mjs
 ```
 
-测试计划位于 [docs/forge-routing-system-test.md](docs/forge-routing-system-test.md)。它会验证 CE/GSD/gstack/Waza 路由矩阵、setup 指南、`/forge-run` 边界、模板行数预算、插件 metadata，以及渲染后的 `CLAUDE.md` / `AGENTS.md` 产出物。
+测试会验证：
 
-<div align="right">
+- README 与 README_CN 的增强项一致
+- CE/GSD/gstack/Waza 路由覆盖
+- `/forge-run` 边界
+- 模板行数预算
+- 插件 metadata
+- 渲染后的 `CLAUDE.md` 和 `AGENTS.md` 产出物
 
-[![][back-to-top]][readme-top]
+测试计划位于 [docs/forge-routing-system-test.md](docs/forge-routing-system-test.md)。
 
-</div>
+## 仓库结构
+
+```text
+.
+├── templates/
+│   ├── essential.md
+│   ├── full.md
+│   └── targets/codex/
+├── skills/
+│   ├── forge-setup/
+│   └── forge-run/
+├── docs/
+│   └── forge-routing-system-test.md
+├── scripts/
+│   └── test-forge-routing.mjs
+└── images/
+```
 
 ## Built With
 
-Forge 的方法论提取自以下项目，并与它们协同工作：
-
-| Project | Description | Role in Forge |
-|---------|-------------|---------------|
-| [Claude Code][claude-code] | Anthropic 的 AI 编程 CLI | 运行时 — CLAUDE.md 是 Claude Code 的持久化指令层 |
-| [Compound Engineering][ce-plugin] | Kieran Klaassen / Every 的 AI 开发工作流插件 | 方法论来源 — Forge 的任务路由、质量门禁、审查模式均受 CE 启发 |
-| [GSD][gsd-repo] | 面向多种 coding agent 的 spec-driven 项目工作流 | 执行搭档 — 持久化规划状态、phase 执行、验收与发布 |
-| [gstack][gstack-repo] | Garry Tan 的 AI software factory 工作流 | 审查搭档 — 产品/工程/设计/DX 闸门、浏览器 QA 与发布纪律 |
-| [Waza][waza-repo] | Tw93 的工程习惯 AI 技能集 | 习惯搭档 — lean planning、根因 debug、diff/release check、agent health、读取、研究、写作和 UI 打磨 |
-| [Revolve][revolve-repo] | 自进化 AI 研究架构 | 推荐搭配 — 自动化飞轮中的「进化 CLAUDE.md」环节 |
-| [Best-README-Template][readme-template] | Othneil Drew 的热门 README 模板 | README 结构和视觉参考 |
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
+| Project | 在 Forge 中的角色 |
+|---------|-------------------|
+| [Claude Code][claude-code] | `CLAUDE.md` 和 plugin skills 的运行时 |
+| [Codex](https://openai.com/codex/) | `AGENTS.md` 的运行时 |
+| [Compound Engineering][ce-plugin] | Strategy、planning、review 和知识沉淀参考 |
+| [GSD][gsd-repo] | 持久执行与 phase planning 搭档 |
+| [gstack][gstack-repo] | 产品、设计、DX、浏览器 QA 和发布闸门搭档 |
+| [Waza][waza-repo] | 单点工程习惯搭档 |
+| [Revolve][revolve-repo] | 研究与指令进化搭档 |
 
 ## Acknowledgments
 
-- [Kieran Klaassen](https://github.com/kieranklaassen) 和 [Every](https://every.to) — 感谢 [Compound Engineering][ce-plugin]，Forge 的任务路由、质量门禁、审查纪律和知识沉淀模式均参考了 CE 的工作流方法论
-- [Tw93](https://github.com/tw93) — 感谢 [Waza][waza-repo]，它的轻量技能设计启发了 Forge 对 debug、review、health、研究、写作和 UI 打磨场景的更细路由
-- [Anthropic](https://anthropic.com) — 感谢 Claude Code 和 CLAUDE.md 指令系统，让「工作流即代码」成为可能
-- [Othneil Drew](https://github.com/othneildrew) — 感谢 [Best-README-Template][readme-template] 提供的 README 布局灵感
-- [EverMind AI](https://github.com/EverMind-AI) — 感谢 [EverMemOS](https://github.com/EverMind-AI/EverMemOS) 提供的 README 视觉设计参考
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
-
-## 参与贡献
-
-欢迎提 Issue、Feature Request 和 PR。
-
-<div align="right">
-
-[![][back-to-top]][readme-top]
-
-</div>
+- [Kieran Klaassen](https://github.com/kieranklaassen) 和 [Every](https://every.to)，感谢 [Compound Engineering][ce-plugin]
+- [Tw93](https://github.com/tw93)，感谢 [Waza][waza-repo]
+- [Anthropic](https://anthropic.com)，感谢 Claude Code 和 `CLAUDE.md` 指令层
+- [Othneil Drew](https://github.com/othneildrew)，感谢 [Best-README-Template][readme-template]
+- [EverMind AI](https://github.com/EverMind-AI)，感谢 EverMemOS 的 README 视觉参考
 
 ## 许可证
 
@@ -453,22 +215,20 @@ Forge 的方法论提取自以下项目，并与它们协同工作：
 <!-- Navigation -->
 [readme-top]: #readme-top
 [why-forge]: #为什么用-forge
-[two-tiers]: #两个层级
 [quick-start]: #快速开始
-[usage-examples]: #使用示例
-[whats-inside]: #模板内容
-[works-with]: #兼容工具
-[customization]: #自定义
+[tiers]: #两个层级
+[routing-model]: #路由模型
+[templates]: #模板
+[workflow-add-ons]: #工作流增强
 [testing]: #测试
+[repository-layout]: #仓库结构
 [built-with]: #built-with
 [acknowledgments]: #acknowledgments
-[contributing]: #参与贡献
 [license-section]: #许可证
 
 <!-- Images -->
-[banner]: images/banner.jpg
-[tier-diagram]: images/tiers.jpg
-[back-to-top]: https://img.shields.io/badge/-回到顶部-gray?style=flat-square
+[banner]: images/banner.png
+[tier-diagram]: images/tiers.svg
 
 <!-- Badges -->
 [license-badge]: https://img.shields.io/badge/License-MIT-blue?style=flat-square
@@ -484,8 +244,8 @@ Forge 的方法论提取自以下项目，并与它们协同工作：
 [lang-en]: README.md
 [lang-zh]: README_CN.md
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
-[revolve-repo]: https://github.com/eisen0419/revolve
 [gsd-repo]: https://github.com/gsd-build/get-shit-done
 [gstack-repo]: https://github.com/garrytan/gstack
 [waza-repo]: https://github.com/tw93/Waza
+[revolve-repo]: https://github.com/eisen0419/revolve
 [readme-template]: https://github.com/othneildrew/Best-README-Template

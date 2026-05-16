@@ -1,0 +1,37 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Forge logo</title>
+  <desc id="desc">A glowing forge mark with an anvil, routing nodes, and a central flame.</desc>
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 488) rotate(90) scale(620)">
+      <stop stop-color="#1E3A8A"/>
+      <stop offset="0.52" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#060A12"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="353" y1="186" x2="683" y2="813" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE08A"/>
+      <stop offset="0.38" stop-color="#FF7A3D"/>
+      <stop offset="0.72" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="36" flood-color="#000000" flood-opacity="0.38"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="28" flood-color="#FF7A3D" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <circle cx="178" cy="842" r="248" fill="#F97316" opacity="0.13"/>
+  <circle cx="866" cy="136" r="250" fill="#38BDF8" opacity="0.12"/>
+  <g filter="url(#shadow)">
+    <path d="M358 176H666L746 256V512C746 641 642 746 512 746C382 746 278 641 278 512V256L358 176Z" fill="url(#flame)"/>
+    <path d="M382 284H642V507C642 579 584 637 512 637C440 637 382 579 382 507V284Z" fill="#07111F" opacity="0.88"/>
+    <path d="M444 383H582L622 423V496H402V423L444 383Z" fill="#F8FAFC"/>
+    <path d="M426 531H598V573H426V531Z" fill="#F8FAFC"/>
+    <path d="M486 240H538V680H486V240Z" fill="#FF8A3D"/>
+  </g>
+  <g stroke="#E0F2FE" stroke-width="18" stroke-linecap="round" opacity="0.82">
+    <path d="M214 394H312"/>
+    <path d="M712 394H810"/>
+    <path d="M238 646L324 602"/>
+    <path d="M786 646L700 602"/>
+  </g>
+</svg>

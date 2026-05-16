@@ -1,0 +1,79 @@
+<svg width="1456" height="720" viewBox="0 0 1456 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Forge routing tiers</title>
+  <desc id="desc">Essential keeps compact guardrails, Full adds a router for CE, GSD, gstack, Waza, and Revolve.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1456" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06111F"/>
+      <stop offset="0.52" stop-color="#102A43"/>
+      <stop offset="1" stop-color="#171330"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="90" y1="80" x2="1320" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="0.47" stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="1456" height="720" rx="36" fill="url(#bg)"/>
+  <path d="M66 585C280 498 377 596 553 492C730 388 714 188 930 201C1146 214 1195 413 1389 321V720H66V585Z" fill="url(#accent)" opacity="0.08"/>
+  <text x="72" y="94" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="44" font-weight="800">Forge Tiers and Routing</text>
+  <text x="74" y="137" fill="#AFC3DA" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22">Start compact. Add routing only when your agent workflow needs stronger coordination.</text>
+
+  <g filter="url(#cardShadow)">
+    <rect x="74" y="190" width="386" height="392" rx="30" fill="#0F172A" stroke="#38BDF8" stroke-opacity="0.45"/>
+    <text x="108" y="250" fill="#E0F2FE" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="800">Essential</text>
+    <text x="108" y="286" fill="#93C5FD" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18">Compact guardrails for every repo</text>
+    <g fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21">
+      <text x="108" y="352">Task routing</text>
+      <text x="108" y="401">Context pointers</text>
+      <text x="108" y="450">Do Not Introduce</text>
+      <text x="108" y="499">Verification discipline</text>
+      <text x="108" y="548">Git and safety rules</text>
+    </g>
+    <g fill="#38BDF8">
+      <circle cx="86" cy="344" r="6"/><circle cx="86" cy="393" r="6"/><circle cx="86" cy="442" r="6"/><circle cx="86" cy="491" r="6"/><circle cx="86" cy="540" r="6"/>
+    </g>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="500" y="190" width="882" height="392" rx="30" fill="#111827" stroke="#A78BFA" stroke-opacity="0.5"/>
+    <text x="538" y="250" fill="#F3E8FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="800">Full</text>
+    <text x="538" y="286" fill="#C4B5FD" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18">Router-first instructions for multi-agent work</text>
+
+    <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+      <rect x="540" y="336" width="230" height="84" rx="22" fill="#0B1220" stroke="#38BDF8" stroke-opacity="0.45"/>
+      <text x="570" y="371" fill="#E0F2FE" font-size="22" font-weight="800">Forge core</text>
+      <text x="570" y="399" fill="#94A3B8" font-size="16">router, blast radius</text>
+
+      <rect x="816" y="322" width="188" height="74" rx="22" fill="#14121F" stroke="#A78BFA" stroke-opacity="0.5"/>
+      <text x="856" y="354" fill="#F3E8FF" font-size="21" font-weight="800">CE</text>
+      <text x="856" y="381" fill="#AFC3DA" font-size="15">strategy + plan</text>
+
+      <rect x="1050" y="322" width="188" height="74" rx="22" fill="#14121F" stroke="#A78BFA" stroke-opacity="0.5"/>
+      <text x="1087" y="354" fill="#F3E8FF" font-size="21" font-weight="800">GSD</text>
+      <text x="1087" y="381" fill="#AFC3DA" font-size="15">phases + state</text>
+
+      <rect x="816" y="444" width="188" height="74" rx="22" fill="#1B1320" stroke="#F97316" stroke-opacity="0.55"/>
+      <text x="850" y="476" fill="#FFEDD5" font-size="21" font-weight="800">gstack</text>
+      <text x="850" y="503" fill="#F8CAA4" font-size="15">product + QA</text>
+
+      <rect x="1050" y="444" width="188" height="74" rx="22" fill="#0B1724" stroke="#38BDF8" stroke-opacity="0.5"/>
+      <text x="1085" y="476" fill="#E0F2FE" font-size="21" font-weight="800">Waza</text>
+      <text x="1085" y="503" fill="#AFC3DA" font-size="15">focused habits</text>
+
+      <rect x="1260" y="382" width="92" height="76" rx="22" fill="#121B2B" stroke="#22C55E" stroke-opacity="0.45"/>
+      <text x="1278" y="414" fill="#DCFCE7" font-size="19" font-weight="800">Revolve</text>
+      <text x="1283" y="440" fill="#AFC3DA" font-size="13">evolve</text>
+    </g>
+
+    <path d="M770 378H812" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M770 378C804 430 810 470 816 481" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M1004 359H1048" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M1004 481H1048" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M1238 420H1258" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <text x="78" y="654" fill="#AFC3DA" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20">Rule of thumb: Essential for safety. Full when routing decisions are part of the work.</text>
+</svg>
