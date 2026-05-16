@@ -72,39 +72,32 @@ Before any change, ask:
 **Downgrade signals**: Clear boundaries, no shared logic, problem converges to single fix.
 <!-- FULL_ONLY_END -->
 <!-- SECTION: Workflow Orchestration (Full tier only)
-  What: CE + GSD combined workflow for medium/large tasks
-  Why: CE excels at deep planning and review; GSD excels at autonomous parallel execution
-  Customize: Remove GSD integration if you don't use it; adjust the flow to your tools
-  Requires: Compound Engineering plugin + GSD (get-shit-done-cc) -->
+  What: Route medium/large tasks across Forge, CE, GSD, and gstack
+  Why: CE, GSD, and gstack now overlap; the right workflow depends on task shape
+  Customize: Keep only the routes supported by your installed tools
+  Requires: Optional CE, GSD, and/or gstack installs -->
 
-## Workflow Orchestration: CE + GSD
+## Workflow Orchestration: Multi-Agent Router
 
-**Four-step flow** — human decisions where they matter, full automation where they don't:
+Do not force every task through one pipeline. Pick the shortest route that preserves quality:
 
-```
-/ce-brainstorm → /ce-plan → /forge-run plan.md → /ce-code-review
-   You decide      You confirm    Fully automatic     You review
-```
+| Situation | Recommended route |
+|-----------|-------------------|
+| Small fix or one-file change | Standalone Forge rules, CE `/ce-work`, or GSD `/gsd-fast` |
+| Standard feature with CE installed | `/ce-strategy` if needed → `/ce-brainstorm` → `/ce-plan` → `/ce-work` → `/ce-code-review` → `/ce-compound` |
+| Existing larger codebase managed by GSD | `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` → `/gsd-verify-work` → `/gsd-ship` |
+| Existing CE plan that should run through GSD | `/ce-plan` → `/forge-run <plan>` → `/gsd-verify-work` → `/ce-code-review` or `/gsd-code-review` |
+| Product, UI, DX, browser QA, or release risk | gstack `/office-hours` or `/autoplan` before implementation; `/qa`, `/design-review`, `/devex-review`, or `/ship` before release |
 
-| Step | Tool | Automation | What happens |
-|------|------|------------|-------------|
-| Brainstorm | CE | Interactive | Explore requirements, write requirements doc |
-| Plan | CE | Interactive | Generate implementation plan with research + units |
-| Run | CE + GSD | **Automatic** | CE plan → GSD native planning → wave-parallel execution |
-| Review | CE | Interactive | Multi-persona code review (6-27 agents) |
+Capability boundaries:
+- **CE**: strategy, ideation, requirements, implementation plans, execution, code review, product pulse, and knowledge compounding
+- **GSD**: `.planning/` project state, codebase mapping, phase planning/execution, workstreams/workspaces, acceptance verification, and shipping
+- **gstack**: product/scope challenge, engineering/design/DX review, real browser QA, Codex second opinion, and release gates
+- **Forge**: shared safety rules, routing discipline, verification, blast-radius checks, git hygiene, and target-specific instruction files
 
-**`/forge-run`** bridges CE planning depth with GSD execution power:
-- Feeds CE plan as rich context into GSD's native `discuss-phase` and `plan-phase`
-- GSD generates its own PLAN.md files (no format conversion needed)
-- Executes via `execute-phase` with wave-based parallelization
-- Reports results and suggests `/ce-code-review`
+`/forge-run` is intentionally narrow: it is the CE-plan-to-GSD bridge. Use it when a CE plan already exists and you want GSD's native phase planning plus wave execution. If the project is already managed by GSD, stay inside the GSD loop. If CE can execute the plan directly, prefer `/ce-work`.
 
-**Lightweight tasks** bypass this flow entirely — use `/ce-work` for single-file fixes and small changes.
-
-**Install GSD** (optional, enhances execution):
-```bash
-npx get-shit-done-cc@latest
-```
+Avoid double ceremony: do not run CE planning, GSD project initialization, and gstack autoplan for every task. Add the extra layer only when uncertainty, blast radius, UI/DX risk, or release risk justifies it.
 <!-- SECTION: Error Recovery Circuit Breaker (Full tier only)
   What: Automatic escalation when the same approach keeps failing
   Why: Prevents infinite retry loops that waste tokens and time

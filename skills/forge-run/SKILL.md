@@ -1,16 +1,21 @@
 ---
 name: forge-run
-description: 将 CE plan 直接对接 GSD 原生执行。消除格式转换，一键完成 plan → GSD 初始化 → 原生规划 → wave 并行执行。当 CE plan 完成后需要自动执行时使用。
+description: CE plan 到 GSD 的桥接器。适用于已经有 CE plan、并希望交给 GSD 原生 phase planning 与 wave 执行的场景；不是所有中大型任务的默认入口。
 argument-hint: "<ce-plan-path> [--phase N]"
 ---
 
-# CE Plan → GSD 原生执行
+# CE Plan → GSD Bridge
 
-将 `/ce-plan` 产出的 plan 文档直接对接 GSD 的原生执行引擎，无需格式转换。
+将 `/ce-plan` 产出的 plan 文档作为高质量 context 交给 GSD，让 GSD 用自己的 `.planning/`、phase planning 和 wave 执行能力继续推进。无需做 CE→GSD 格式转换。
 
 **核心原则**：不做格式转换。将 CE plan 作为丰富 context 传入 GSD `/gsd-plan-phase`，让 GSD 用自己的原生格式生成 plans，然后自治执行。
 
 **前置条件**：必须在目标项目目录下的 Claude session 中运行。GSD skills 绑定当前 session 的工作目录，跨目录调用会导致 `.planning/` 路径错误。
+
+**何时不要用**：
+- 项目已经完整由 GSD 管理：直接留在 `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` 主循环。
+- CE plan 可以直接执行：优先 `/ce-work`，执行后 `/ce-code-review` 和 `/ce-compound`。
+- 任务主要是产品范围、设计、DX、浏览器 QA 或发布风险：先用 gstack `/office-hours`、`/autoplan`、`/qa`、`/design-review`、`/devex-review` 或 `/ship`。
 
 ## 用法
 
@@ -108,7 +113,8 @@ Wave 2 中以下 Units 修改同一文件：
 
 **检查 GSD 是否可用**（查找全局或项目本地安装）：
 ```bash
-ls .claude/commands/gsd/ 2>/dev/null || ls ~/.claude/commands/gsd/ 2>/dev/null
+find .claude/skills ~/.claude/skills .claude/commands ~/.claude/commands .agents/skills ~/.codex/skills \
+  -maxdepth 1 \( -name 'gsd-*' -o -name 'gsd' \) 2>/dev/null | head -1
 ```
 
 如果 GSD 未安装，提示用户：
@@ -120,7 +126,7 @@ ls .claude/commands/gsd/ 2>/dev/null || ls ~/.claude/commands/gsd/ 2>/dev/null
 
 **检查 `.planning/` 是否存在**：
 
-- **不存在**：需要初始化。调用 `/gsd-new-project`，将 CE plan 的 Overview 和 Requirements Trace 作为项目描述输入。GSD 会交互式收集上下文并创建 PROJECT.md 和 .planning/ 结构。
+- **不存在**：需要初始化。若这是既有代码库，先调用 `/gsd-map-codebase` 让 GSD 建立代码库索引；然后调用 `/gsd-new-project`，将 CE plan 的 Overview 和 Requirements Trace 作为项目描述输入。GSD 会收集上下文并创建 `PROJECT.md` 与 `.planning/` 结构。
 
 - **已存在**：跳过初始化，直接进入步骤 3。
 
@@ -200,6 +206,7 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
   /ce-code-review         # 代码审查（推荐）
   /ce-compound            # 沉淀经验（如果有值得记录的模式）
   /gsd-verify-work        # GSD 交互式验证
+  /gsd-progress --next    # 让 GSD 判断下一步
   /gsd-stats              # 查看项目统计
 ```
 
@@ -228,4 +235,4 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
 | Plan 质量 | 受转换精度限制 | GSD 原生质量 |
 | 需求保留 | 手动映射 | 作为 context 自然传递 |
 
-建议逐步废弃 ce2gsd，使用 forge-run 作为标准流程。
+建议逐步废弃 ce2gsd，使用 forge-run 作为 CE plan 接入 GSD 的标准桥接流程。不要把它当成所有中大型任务的默认入口。

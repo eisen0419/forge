@@ -130,20 +130,44 @@ For each output file (`CLAUDE.md` and/or `AGENTS.md`):
 Print the following (do **NOT** install anything automatically):
 
 ```
-Recommended plugins to enhance your workflow:
+Recommended workflow add-ons:
 
 For Claude Code:
-Compound Engineering (CE) — AI-powered planning, review, and knowledge management:
-  claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
-  claude plugin install compound-engineering
+Compound Engineering (CE) — strategy, brainstorming, planning, review, product pulse, and knowledge compounding:
+  /plugin marketplace add EveryInc/compound-engineering-plugin
+  /plugin install compound-engineering
+
+GSD — .planning state, codebase mapping, phase execution, verification, and shipping:
+  npx get-shit-done-cc@latest
+
+gstack — product/engineering/design/DX review, browser QA, Codex second opinion, and release gates:
+  git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+  cd ~/.claude/skills/gstack && ./setup
 
 Revolve — Research pipeline + CLAUDE.md auto-evolution:
-  claude plugin marketplace add https://github.com/eisen0419/revolve
-  claude plugin install revolve
+  /plugin marketplace add https://github.com/eisen0419/revolve
+  /plugin install revolve
 
 For Codex:
-  Use the generated AGENTS.md as the project instruction entrypoint.
-  Add project-local Codex skills later if you want command-like workflows.
+Compound Engineering (CE) — install marketplace, agents, then activate in Codex TUI:
+  codex plugin marketplace add EveryInc/compound-engineering-plugin
+  bunx @every-env/compound-plugin install compound-engineering --to codex
+  codex
+  # inside Codex: run /plugins, install compound-engineering, then restart Codex
+
+GSD — choose Codex when the installer asks for runtime. Codex CLI 0.130.0+ is recommended:
+  npx get-shit-done-cc@latest
+
+gstack — install Codex skills:
+  git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+  cd ~/gstack && ./setup --host codex
+
+Route selection:
+  - Small fixes: standalone Forge rules, CE ce-work, or GSD gsd-fast
+  - CE-native work: ce-brainstorm -> ce-plan -> ce-work -> ce-code-review -> ce-compound
+  - GSD-managed projects: gsd-map-codebase -> gsd-new-project -> discuss -> plan -> execute -> verify -> ship
+  - Existing CE plan into GSD: forge-run <plan> as a bridge
+  - Product/UI/DX/browser/release risk: add gstack office-hours/autoplan/qa/review gates
 ```
 
 ## Step 8: Completion

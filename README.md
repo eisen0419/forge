@@ -89,9 +89,11 @@ Agent instruction files are powerful, but building a good one from scratch takes
 
 ### With Plugin (Recommended)
 
-```bash
-claude plugin marketplace add https://github.com/eisen0419/forge
-claude plugin install forge
+Inside Claude Code:
+
+```text
+/plugin marketplace add https://github.com/eisen0419/forge
+/plugin install forge
 ```
 
 Then run `/forge-setup` in any project. The wizard can generate `CLAUDE.md`, `AGENTS.md`, or both:
@@ -128,8 +130,8 @@ Generating Essential instruction files...
 Written to ./CLAUDE.md and ./AGENTS.md
 
 Recommended plugins to enhance your workflow:
-  claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
-  claude plugin install compound-engineering
+  /plugin marketplace add EveryInc/compound-engineering-plugin
+  /plugin install compound-engineering
 ```
 
 ### Without Plugin
@@ -145,6 +147,16 @@ For Codex:
 1. Copy `templates/targets/codex/essential.md` or `templates/targets/codex/full.md` to your project as `AGENTS.md`
 2. Replace all `{{VARIABLES}}` with your actual values
 3. Done
+
+### Optional workflow add-ons
+
+Forge works without add-ons, but Full tier can route to these systems when installed:
+
+| Add-on | Claude Code | Codex |
+|--------|-------------|-------|
+| CE | Run `/plugin marketplace add EveryInc/compound-engineering-plugin`, then `/plugin install compound-engineering` inside Claude Code | Run `codex plugin marketplace add EveryInc/compound-engineering-plugin`, then `bunx @every-env/compound-plugin install compound-engineering --to codex`, then install `compound-engineering` from Codex `/plugins` |
+| GSD | Run `npx get-shit-done-cc@latest` and choose Claude Code | Run `npx get-shit-done-cc@latest` and choose Codex. Codex CLI 0.130.0+ is recommended |
+| gstack | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` | `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack && cd ~/gstack && ./setup --host codex` |
 
 <div align="right">
 
@@ -184,7 +196,7 @@ You're running Claude Code or Codex with a multi-agent workflow. Full tier adds:
 - **Blast radius protocol** -- before touching any exported function, the agent greps all callers and adds them to the verification list
 - **Knowledge compounding** -- hard-won debugging lessons get saved to `docs/solutions/` so future sessions don't repeat the same mistakes
 
-This tier works standalone but shines when paired with the CE + GSD combined workflow: `/ce-brainstorm` → `/ce-plan` → `/forge-run` → `/ce-code-review`.
+This tier works standalone, and it can also route work across CE, GSD, and gstack. Use CE for strategy, brainstorming, planning, review, and knowledge compounding; use GSD when a project needs durable `.planning/` state and phase-based execution; use gstack when product scope, design quality, DX, browser QA, or release confidence matter.
 
 <div align="right">
 
@@ -198,7 +210,7 @@ This tier works standalone but shines when paired with the CE + GSD combined wor
 |---------|------|-------------|
 | Decision Framework | Both | Three questions before any change -- cut scope creep early |
 | Task Routing | Both | Route tasks to right workflow -- skip ceremony for trivial changes |
-| CE+GSD Workflow | Full | brainstorm → plan → forge-run (automatic) → review pipeline |
+| Multi-Agent Workflow Router | Full | Choose the right route across CE, GSD, gstack, or standalone Forge |
 | Error Recovery | Full | Circuit breaker: same approach fails twice, must re-plan |
 | Compact Recovery | Full | What to do when agent context gets compressed mid-session |
 | Quality Gates | Both | Testing strategy tied to blast radius, not dogma |
@@ -211,6 +223,20 @@ This tier works standalone but shines when paired with the CE + GSD combined wor
 | Git Conventions | Both | Branch naming, commit format, hard prohibitions |
 | Safety Rules | Both | No destructive commands, no hardcoded secrets |
 | Task Management | Both | `tasks/todo.md` discipline: plan before code, track as you go |
+
+### Multi-Agent Route Matrix
+
+Forge no longer assumes one universal pipeline. Pick the shortest route that matches the work:
+
+| Situation | Recommended route |
+|-----------|-------------------|
+| Small fix or one-file change | Standalone Forge rules, CE `/ce-work`, or GSD `/gsd-fast` |
+| Standard feature with CE installed | `/ce-strategy` if needed → `/ce-brainstorm` → `/ce-plan` → `/ce-work` → `/ce-code-review` → `/ce-compound` |
+| Existing larger codebase managed by GSD | `/gsd-map-codebase` → `/gsd-new-project` → `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` → `/gsd-verify-work` → `/gsd-ship` |
+| Existing CE plan that should run through GSD | `/ce-plan` → `/forge-run <plan>` → `/gsd-verify-work` → `/ce-code-review` or `/gsd-code-review` |
+| Product, UI, DX, browser QA, or release risk | gstack `/office-hours` or `/autoplan` before implementation; `/qa`, `/design-review`, `/devex-review`, or `/ship` before release |
+
+`/forge-run` is intentionally narrow: it is the CE-plan-to-GSD bridge. It is useful when you already have a CE plan and want GSD's native phase planning and wave execution, but it is not the default path for every medium or large task.
 
 ### Key Rules in Practice
 
@@ -277,9 +303,9 @@ Claude: [greps callers first]
 |------|--------|-------------|
 | Standalone | Works | No plugins needed -- methodology lives in `CLAUDE.md` or `AGENTS.md` |
 | Codex | Works | Use `templates/targets/codex/*` to generate an `AGENTS.md` workflow file |
-| [Compound Engineering][ce-plugin] | Enhanced | `/ce-brainstorm`, `/ce-plan`, `/ce-code-review`, `/ce-compound` |
-| [GSD][gsd-repo] | Enhanced | `/forge-run` invokes GSD's wave-parallel execution engine for autonomous implementation |
-| gstack | Enhanced | Browser QA, CEO/eng plan review |
+| [Compound Engineering][ce-plugin] | Enhanced | Strategy, ideation, brainstorming, planning, execution, review, product pulse, and knowledge compounding |
+| [GSD][gsd-repo] | Enhanced | Codebase mapping, `.planning/` state, phase planning/execution, workstreams, verification, and shipping |
+| [gstack][gstack-repo] | Enhanced | Product and scope challenge, engineering/design/DX review, browser QA, Codex second opinion, and release gates |
 | [Revolve][revolve-repo] | Enhanced | Research pipeline + CLAUDE.md auto-evolution |
 
 <div align="right">
@@ -344,6 +370,8 @@ Forge's methodology is extracted from and works alongside these projects:
 |---------|-------------|---------------|
 | [Claude Code][claude-code] | Anthropic's AI coding CLI | Runtime -- CLAUDE.md is Claude Code's persistent instruction layer |
 | [Compound Engineering][ce-plugin] | AI-powered development workflow plugin by Kieran Klaassen / Every | Methodology source -- Forge's task routing, quality gates, and review patterns are inspired by CE's workflow |
+| [GSD][gsd-repo] | Spec-driven project workflow for many coding agents | Execution companion -- durable planning state, phase execution, verification, and shipping workflows |
+| [gstack][gstack-repo] | Garry Tan's AI software factory workflow | Review companion -- product/engineering/design/DX gates, browser QA, and release discipline |
 | [Revolve][revolve-repo] | Self-evolving AI research architecture | Recommended companion -- automates the "Evolve CLAUDE.md" step in the flywheel |
 | [Best-README-Template][readme-template] | Popular README template by Othneil Drew | README structure and visual patterns |
 
@@ -415,4 +443,5 @@ Issues, feature requests, and PRs welcome.
 [ce-plugin]: https://github.com/EveryInc/compound-engineering-plugin
 [revolve-repo]: https://github.com/eisen0419/revolve
 [gsd-repo]: https://github.com/gsd-build/get-shit-done
+[gstack-repo]: https://github.com/garrytan/gstack
 [readme-template]: https://github.com/othneildrew/Best-README-Template

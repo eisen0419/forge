@@ -72,27 +72,36 @@ Before any change, ask:
 **Downgrade signals**: Clear boundaries, no shared logic, problem converges to single fix.
 
 <!-- SECTION: Workflow Orchestration
-  What: Agent-neutral workflow for medium/large tasks
-  Why: Codex should follow the methodology even when Claude Code slash commands are unavailable
-  Customize: Map conceptual steps to your installed Codex skills or local commands -->
+  What: Agent-neutral workflow router for medium/large tasks
+  Why: Codex should route work to the strongest installed skill set instead of imitating Claude-only slash commands
+  Customize: Keep only the routes supported by your installed Codex skills or local commands -->
 
 ## Workflow Orchestration
 
-**Four-step flow** — human decisions where they matter, automation where it is safe:
+Use Forge as the shared discipline layer, then route to the strongest installed workflow. Command names vary by runtime: CE skills may appear as `$ce-*` in Codex, while GSD/gstack install to Codex skill roots and may expose runtime-specific names. Treat the names below as canonical upstream names, not hardcoded shell commands.
+
+| Situation | Preferred route |
+|-----------|-----------------|
+| Small fix or one-file change | Follow this AGENTS.md directly, or use CE `ce-work` / GSD `gsd-fast` if installed |
+| Standard feature with CE installed | `ce-strategy` if needed -> `ce-brainstorm` -> `ce-plan` -> `ce-work` -> `ce-code-review` -> `ce-compound` |
+| Existing larger codebase managed by GSD | `gsd-map-codebase` -> `gsd-new-project` -> `gsd-discuss-phase` -> `gsd-plan-phase` -> `gsd-execute-phase` -> `gsd-verify-work` -> `gsd-ship` |
+| Existing CE plan that should run through GSD | Use Forge's CE-to-GSD bridge (`forge-run` on Claude Code, or manually pass the CE plan into GSD discuss/plan/execute on Codex) |
+| Product, UI, DX, browser QA, or release risk | Use gstack `office-hours` or `autoplan` before implementation; add `qa`, `design-review`, `devex-review`, or `ship` before release |
+
+Capability boundaries:
+- **CE**: strategy, ideation, requirements, implementation plans, execution, code review, product pulse, and knowledge compounding
+- **GSD**: `.planning/` project state, codebase mapping, phase planning/execution, workstreams/workspaces, acceptance verification, and shipping
+- **gstack**: product/scope challenge, engineering/design/DX review, real browser QA, Codex second opinion, and release gates
+- **Forge**: safety rules, routing discipline, verification, blast-radius checks, git hygiene, and cross-agent target templates
+
+If none of those skills are installed, use the conceptual flow directly:
 
 ```
-Brainstorm -> Plan -> Execute -> Review
-   You decide  You confirm  Codex works  You review
+Brainstorm -> Plan -> Execute -> Review -> Compound
+   decide      confirm  implement  verify   document reusable learning
 ```
 
-| Step | Codex behavior | Output |
-|------|----------------|--------|
-| Brainstorm | Explore requirements and write a right-sized requirements doc | `docs/brainstorms/` or project equivalent |
-| Plan | Create an implementation plan with units, risks, files, and verification | `docs/plans/` or project equivalent |
-| Execute | Implement in small steps, maintaining the task checklist | Code/docs changes |
-| Review | Review changed behavior, risks, and verification evidence before reporting done | Findings or approval |
-
-If project-local skills exist, prefer them for each step. If not, follow this AGENTS.md directly.
+Avoid double ceremony: do not run CE planning, GSD project initialization, and gstack autoplan for every task. Add the extra layer only when uncertainty, blast radius, UI/DX risk, or release risk justifies it.
 
 <!-- SECTION: Error Recovery Circuit Breaker
   What: Automatic escalation when the same approach keeps failing
