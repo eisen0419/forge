@@ -27,7 +27,7 @@ Ask the user via AskUserQuestion:
 > Which Forge tier would you like?
 >
 > - **Essential** — Newcomers. Core rules only: coding standards, task management, git conventions, safety rules. Minimal overhead, easy to start.
-> - **Full** — Power users. Complete methodology: circuit breaker error recovery, role system (designer/reviewer/executor/inspiration), knowledge compounding via `/ce-compound`, peer review framework, subagent strategy, and testing discipline.
+> - **Full** — Power users. Router-first methodology under ~200 lines: context pointers, do-not-introduce guardrails, CE/GSD/gstack routing, blast radius checks, local instruction files, hooks/memory guidance, and role mapping.
 >
 > Which tier? (Essential / Full)
 

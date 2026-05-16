@@ -39,6 +39,15 @@
 3. This AGENTS.md
 4. Skill workflow definitions
 
+## Context Pointers
+
+Keep this file short. Use it as a router:
+- Project overview: `README.md`
+- Architecture: `docs/architecture.md` if present
+- Decisions: `docs/decisions/` or ADRs if present
+- Known reusable fixes: `docs/solutions/`
+- If a referenced file does not exist, inspect the repo and use the closest available source.
+
 <!-- SECTION: Decision Three Questions
   What: Three questions to ask before any change
   Why: Prevents over-engineering, premature optimization, and breaking changes
@@ -66,6 +75,15 @@ Before any change, ask:
 | **Medium/Large** | 3+ steps, architecture decisions, shared logic | Plan -> implement -> review |
 
 **Lightweight rules**: Ask at most 1 clarifying question. Skip full workflow ceremony.
+
+## Do Not Introduce
+
+Do not add or switch these without explicit approval:
+- Runtime dependencies or package managers
+- Frameworks, test runners, linters, formatters, or build tools
+- Database/schema/migration changes
+- CI, deployment, or environment template changes
+- Secrets, credentials, API keys, or generated private data.
 
 <!-- SECTION: Codex Skill Usage
   What: How to use Forge with Codex skills

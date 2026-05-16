@@ -8,7 +8,7 @@
 
 **AI-Assisted Development Workflow Starter Kit for Claude Code and Codex**
 
-Battle-tested agent instruction templates -- `CLAUDE.md`, `AGENTS.md`, task routing, error recovery, quality gates, and knowledge compounding.
+Battle-tested agent instruction templates -- `CLAUDE.md`, `AGENTS.md`, task routing, context pointers, quality gates, and knowledge compounding.
 
 [Quick Start][quick-start] •
 [Usage Examples][usage-examples] •
@@ -49,9 +49,9 @@ Sister project: **[Revolve][revolve-repo]** -- self-evolving AI research archite
 
 **With Forge:** Claude reads your CLAUDE.md blast radius protocol: *"Before modifying any exported function, grep all callers and assess impact."* It finds 2 callers, adds them to the verification list, and tests everything before claiming done.
 
-That's one rule. Forge gives you 17 sections of these battle-tested patterns -- extracted from hundreds of real sessions, not invented in a vacuum.
+That's one rule. Forge gives you a compact set of battle-tested patterns -- extracted from hundreds of real sessions, not invented in a vacuum.
 
-Agent instruction files are powerful, but building a good one from scratch takes months of trial and error. Most developers never discover patterns like circuit breakers (stop retrying the same failing approach), compact recovery (what to do when context gets compressed mid-session), or blast radius protocols (check impact before touching shared code). Forge gives you the skeleton. You grow the muscle through real use.
+Agent instruction files are powerful, but building a good one from scratch takes months of trial and error. Most developers never discover patterns like context pointers, do-not-introduce guardrails, local instruction files, objective hooks, or blast radius protocols. Forge gives you the skeleton. You grow the muscle through real use.
 
 ### Why Not Just Copy Someone's Instruction File?
 
@@ -60,7 +60,7 @@ Agent instruction files are powerful, but building a good one from scratch takes
 | Mixes methodology with personal config | Extracts universal patterns only |
 | One-size-fits-all | Two tiers: Essential (newcomers) + Full (power users) |
 | Copy and hope | `/forge-setup` asks your stack, generates customized output |
-| Unexplained rules | Every rule has inline comments explaining **why** |
+| Unexplained rules | Short, operational rules with pointers to deeper docs |
 
 <div align="right">
 
@@ -75,8 +75,8 @@ Agent instruction files are powerful, but building a good one from scratch takes
 | | Essential | Full |
 |---|-----------|------|
 | **For** | Newcomers to Claude Code | Power users with multi-plugin setups |
-| **Sections** | 10 core sections | All 17 sections |
-| **Includes** | Task routing, quality gates, verification, git, safety | Everything in Essential + circuit breaker, role system, peer review, subagent strategy, blast radius, knowledge compounding |
+| **Shape** | Compact guardrails | Router-first, under ~200 lines |
+| **Includes** | Task routing, context pointers, do-not-introduce list, verification, git, safety | Everything in Essential + multi-agent routing, specialized flow priority, blast radius, local instruction files, hooks/memory guidance |
 | **Setup time** | ~5 min | ~10 min |
 
 <div align="right">
@@ -109,7 +109,7 @@ Then run `/forge-setup` in any project. The wizard can generate `CLAUDE.md`, `AG
 
 ? Which Forge tier would you like?
   - Essential — Core rules only: coding standards, task management, git, safety
-  - Full — Complete methodology: circuit breaker, role system, knowledge compounding
+  - Full — Router-first methodology: context pointers, forbidden changes, multi-agent routes
 > Essential
 
 ? What's your name?
@@ -178,7 +178,7 @@ Pick Essential tier. In 2 minutes you have a `CLAUDE.md` or `AGENTS.md` with tas
 
 ### Junior developer with Essential tier
 
-You're new to AI coding agents and don't want to be overwhelmed. Essential gives you 10 sections that cover the fundamentals:
+You're new to AI coding agents and don't want to be overwhelmed. Essential gives you a compact set of rules that cover the fundamentals:
 
 - **Task routing** prevents agents from over-engineering a typo fix
 - **Verification discipline** stops agents from claiming "tests pass" without running them
@@ -191,9 +191,12 @@ No plugins required. Just a `CLAUDE.md` or `AGENTS.md` file in your repo.
 
 You're running Claude Code or Codex with a multi-agent workflow. Full tier adds:
 
-- **Circuit breaker** -- when an agent tries the same failing approach twice, it stops and re-plans instead of burning your context window with retries
-- **Role system** -- map abstract roles (designer, reviewer) to AI providers. Your reviewer might be Codex, your inspiration source might be Gemini
+- **Context pointers** -- point agents to docs only when needed, instead of loading every architectural detail upfront
+- **Do-not-introduce list** -- prevent unapproved dependencies, frameworks, schemas, CI, or secret-bearing state
+- **Role system** -- map abstract roles (designer, reviewer) to AI providers
 - **Blast radius protocol** -- before touching any exported function, the agent greps all callers and adds them to the verification list
+- **Local instruction guidance** -- put extra guardrails in sensitive subtrees such as auth, payments, infra, or migrations
+- **Hooks and memory guidance** -- keep hooks objective and store long-term learning in project artifacts
 - **Knowledge compounding** -- hard-won debugging lessons get saved to `docs/solutions/` so future sessions don't repeat the same mistakes
 
 This tier works standalone, and it can also route work across CE, GSD, and gstack. Use CE for strategy, brainstorming, planning, review, and knowledge compounding; use GSD when a project needs durable `.planning/` state and phase-based execution; use gstack when product scope, design quality, DX, browser QA, or release confidence matter.
@@ -208,21 +211,20 @@ This tier works standalone, and it can also route work across CE, GSD, and gstac
 
 | Section | Tier | What it does |
 |---------|------|-------------|
+| Context Pointers | Both | Keep instruction files short by pointing to docs only when needed |
 | Decision Framework | Both | Three questions before any change -- cut scope creep early |
 | Task Routing | Both | Route tasks to right workflow -- skip ceremony for trivial changes |
+| Do Not Introduce | Both | Block unapproved dependencies, frameworks, CI, schema, and secret-bearing changes |
 | Multi-Agent Workflow Router | Full | Choose the right route across CE, GSD, gstack, or standalone Forge |
-| Error Recovery | Full | Circuit breaker: same approach fails twice, must re-plan |
-| Compact Recovery | Full | What to do when agent context gets compressed mid-session |
-| Quality Gates | Both | Testing strategy tied to blast radius, not dogma |
+| Specialized Flow Priority | Full | Prefer CE/GSD/gstack for debug, TDD, verification, and review; use Superpowers only as fallback |
 | Verification | Both | Delivery gate -- no claiming done without evidence |
 | Blast Radius | Full | Assess impact before touching exported interfaces |
+| Local Instruction Files | Full | Add local `CLAUDE.md` / `AGENTS.md` guardrails for sensitive subtrees |
+| Hooks And Memory | Full | Use hooks for objective checks and docs for durable memory |
 | Role System | Full | Map abstract roles (designer, reviewer) to AI providers |
-| Peer Review | Full | Plan review + code review checkpoints |
-| Subagent Strategy | Full | When to spawn subagents, model selection by complexity |
 | Knowledge Compounding | Full | Extract lessons worth keeping into `docs/solutions/` |
 | Git Conventions | Both | Branch naming, commit format, hard prohibitions |
 | Safety Rules | Both | No destructive commands, no hardcoded secrets |
-| Task Management | Both | `tasks/todo.md` discipline: plan before code, track as you go |
 
 ### Multi-Agent Route Matrix
 
@@ -238,6 +240,20 @@ Forge no longer assumes one universal pipeline. Pick the shortest route that mat
 
 `/forge-run` is intentionally narrow: it is the CE-plan-to-GSD bridge. It is useful when you already have a CE plan and want GSD's native phase planning and wave execution, but it is not the default path for every medium or large task.
 
+### Instruction File Best Practices
+
+Forge templates follow a router-first style:
+
+| Practice | How Forge applies it |
+|----------|----------------------|
+| Keep it short | Full templates stay under ~200 lines and avoid long architecture dumps |
+| Make rules testable | Rules say what to run, what not to change, or what evidence is required |
+| Use pointers | Architecture, decisions, solutions, and GSD state live in docs, not in the instruction file |
+| Name forbidden changes | `Do Not Introduce` blocks unapproved dependencies, frameworks, CI, schema, and secret-bearing state |
+| Use local guardrails | Add local `CLAUDE.md` / `AGENTS.md` files for auth, billing, payments, infra, migrations, or generated SDKs |
+| Keep hooks objective | Use hooks for dependency/schema/CI warnings and verification prompts, not subjective judgment |
+| Store memory in artifacts | Prefer `docs/solutions/`, `docs/decisions/`, `.planning/`, and CE compound notes over a giant instruction file |
+
 ### Key Rules in Practice
 
 **Task Routing** automatically matches effort to task size:
@@ -251,16 +267,16 @@ Claude: [routes as Medium/Large -- starts with /ce-plan, identifies 6 subtasks,
          asks which OAuth provider before writing a line of code]
 ```
 
-**Circuit Breaker** prevents wasted context on dead-end approaches:
+**Do Not Introduce** prevents surprise stack drift:
 
 ```
-Attempt 1: tries regex-based parsing -> fails on edge case
-Attempt 2: tries regex-based parsing with fix -> same failure
-Circuit breaker triggers: "Same approach failed 2x. Stopping to re-plan."
-Re-plan: switches to proper AST parser -> succeeds
+You: "add a small CSV export"
+Claude: [checks Do Not Introduce]
+  No new CSV library without approval.
+  Uses existing stdlib / project helper instead.
 ```
 
-Without this rule, Claude will happily burn 10 attempts on the same broken approach while your context window shrinks.
+Without this rule, agents often add "helpful" dependencies, test runners, or build tools that do not fit the project.
 
 **Verification Discipline** eliminates phantom success claims:
 
@@ -316,11 +332,11 @@ Claude: [greps callers first]
 
 ## Customization
 
-Every section in the generated CLAUDE.md is independent. Remove what you don't need, adjust thresholds, add your own rules. The inline comments explain each section's purpose so you know what you're trading off.
+Every section in the generated CLAUDE.md or AGENTS.md is independent. Remove what you don't need, adjust thresholds, and add project-specific rules. Keep the main file short; use pointers to deeper docs.
 
 ### Remove a section
 
-Just delete it. The other sections don't depend on it. If you never use subagents, remove the Subagent Strategy section entirely.
+Just delete it. The other sections don't depend on it. If you do not use CE, GSD, or gstack, remove those route rows and keep the standalone Forge workflow.
 
 ### Adjust thresholds
 
@@ -330,10 +346,12 @@ Task routing defaults to "3+ steps" as the trigger for full planning. If you wan
 | **Medium/Large** | 5+ steps, architecture decisions | Plan -> implement -> review |
 ```
 
-The circuit breaker defaults to 2 consecutive failures before re-planning. Raise it to 3 if you want more tolerance:
+The `Do Not Introduce` list is intentionally generic. Add project-specific forbidden choices:
 
 ```markdown
-- Same approach fails 3 consecutive times: must re-plan
+- Do not add Redux; this app uses Zustand.
+- Do not add Jest; this repo uses Vitest.
+- Do not create new migrations without explicit approval.
 ```
 
 ### Add project-specific rules
@@ -354,7 +372,7 @@ Add your own sections anywhere in the file:
 
 ### Recommended path
 
-Start with Essential. Use it for a week. When you notice gaps -- Claude retrying failed approaches, making changes without checking impact, or losing context after compaction -- promote to Full. Those gaps tell you exactly which sections you need.
+Start with Essential. Use it for a week. When you need CE/GSD/gstack routing, local guardrails, hooks guidance, or stronger blast-radius rules, promote to Full.
 
 <div align="right">
 
@@ -383,7 +401,7 @@ Forge's methodology is extracted from and works alongside these projects:
 
 ## Acknowledgments
 
-- [Kieran Klaassen](https://github.com/kieranklaassen) and [Every](https://every.to) -- for [Compound Engineering][ce-plugin], the workflow methodology that Forge extracts and generalizes. CE's task routing, error recovery circuit breaker, quality gates, subagent strategy, and knowledge compounding patterns are the foundation of Forge's templates
+- [Kieran Klaassen](https://github.com/kieranklaassen) and [Every](https://every.to) -- for [Compound Engineering][ce-plugin], the workflow methodology that Forge extracts and generalizes. CE's task routing, quality gates, review discipline, and knowledge compounding patterns are foundational references for Forge's templates
 - [Anthropic](https://anthropic.com) -- for Claude Code and the CLAUDE.md instruction system that makes workflow-as-code possible
 - [Othneil Drew](https://github.com/othneildrew) -- for [Best-README-Template][readme-template], the README layout inspiration
 - [EverMind AI](https://github.com/EverMind-AI) -- for [EverMemOS](https://github.com/EverMind-AI/EverMemOS), README visual design reference
