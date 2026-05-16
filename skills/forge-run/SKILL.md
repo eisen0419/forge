@@ -1,12 +1,12 @@
 ---
-name: ce:run
+name: forge-run
 description: 将 CE plan 直接对接 GSD 原生执行。消除格式转换，一键完成 plan → GSD 初始化 → 原生规划 → wave 并行执行。当 CE plan 完成后需要自动执行时使用。
 argument-hint: "<ce-plan-path> [--phase N]"
 ---
 
 # CE Plan → GSD 原生执行
 
-将 `/ce:plan` 产出的 plan 文档直接对接 GSD 的原生执行引擎，无需格式转换。
+将 `/ce-plan` 产出的 plan 文档直接对接 GSD 的原生执行引擎，无需格式转换。
 
 **核心原则**：不做格式转换。将 CE plan 作为丰富 context 传入 GSD `/gsd-plan-phase`，让 GSD 用自己的原生格式生成 plans，然后自治执行。
 
@@ -15,8 +15,8 @@ argument-hint: "<ce-plan-path> [--phase N]"
 ## 用法
 
 ```
-/ce:run docs/plans/2026-04-02-001-feat-xxx-plan.md
-/ce:run docs/plans/2026-04-02-001-feat-xxx-plan.md --phase 2
+/forge-run docs/plans/2026-04-02-001-feat-xxx-plan.md
+/forge-run docs/plans/2026-04-02-001-feat-xxx-plan.md --phase 2
 ```
 
 ## 输入解析
@@ -30,7 +30,7 @@ argument-hint: "<ce-plan-path> [--phase N]"
 如果 `<ce_plan_input>` 为空，检查 `docs/plans/` 目录下最近修改的 plan 文件：
 - 找到唯一候选：确认后使用
 - 找到多个候选：列出让用户选择
-- 未找到：提示用户先运行 `/ce:plan` 生成 plan
+- 未找到：提示用户先运行 `/ce-plan` 生成 plan
 
 ## 执行流程
 
@@ -48,9 +48,9 @@ test -f "<plan_path>"
 ❌ 找不到 plan 文件：<plan_path>
    当前目录：<cwd>
 
-   /ce:run 必须在项目目录下运行。请：
+   /forge-run 必须在项目目录下运行。请：
    1. 切换到项目目录：cd <project_path> && claude
-   2. 然后运行：/ce:run <plan_path>
+   2. 然后运行：/forge-run <plan_path>
 ```
 
 **验证是 git 仓库**：
@@ -72,7 +72,7 @@ git rev-parse --is-inside-work-tree 2>/dev/null
 
 验证 plan 文件包含 Implementation Units。如果不包含，报错退出：
 ```
-❌ CE plan 中未找到 Implementation Units。请确认文件路径正确，或先运行 /ce:plan 生成完整 plan。
+❌ CE plan 中未找到 Implementation Units。请确认文件路径正确，或先运行 /ce-plan 生成完整 plan。
 ```
 
 ### 步骤 1.5：并行写冲突检测（P1 修复）
@@ -197,10 +197,10 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
   Wave 分布：Wave 1 (a plans) → Wave 2 (b plans) → ...
 
 下一步：
-  /ce:review              # 代码审查（推荐）
-  /ce:compound            # 沉淀经验（如果有值得记录的模式）
+  /ce-code-review         # 代码审查（推荐）
+  /ce-compound            # 沉淀经验（如果有值得记录的模式）
   /gsd-verify-work        # GSD 交互式验证
-  /gsd-session-report     # 查看 session 统计
+  /gsd-stats              # 查看项目统计
 ```
 
 如果执行中断：
@@ -214,18 +214,18 @@ GSD 会自动按 wave 并行执行所有 plans，使用独立 200k token context
 恢复选项：
   /gsd-resume-work        # 从中断点恢复
   /gsd-debug              # 调试失败原因
-  /ce:run <path> --phase N  # 从指定 phase 重新执行
+  /forge-run <path> --phase N  # 从指定 phase 重新执行
 ```
 
 ## 与 ce2gsd 的关系
 
-`/ce:run` 是 `/ce2gsd` 的替代方案。区别：
+`/forge-run` 是 `/ce2gsd` 的替代方案。区别：
 
-| | ce2gsd | ce:run |
+| | ce2gsd | forge-run |
 |---|---|---|
 | 方式 | 格式转换（CE→GSD PLAN.md） | 原生生成（GSD 自己规划） |
 | 维护成本 | 高（两侧格式变化需同步） | 低（只是编排层） |
 | Plan 质量 | 受转换精度限制 | GSD 原生质量 |
 | 需求保留 | 手动映射 | 作为 context 自然传递 |
 
-建议逐步废弃 ce2gsd，使用 ce:run 作为标准流程。
+建议逐步废弃 ce2gsd，使用 forge-run 作为标准流程。

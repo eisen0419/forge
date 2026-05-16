@@ -6,9 +6,9 @@
 [![Claude Code][claude-badge]][claude-code]
 [![Plugin][plugin-badge]][install-url]
 
-**Claude Code AI 辅助开发工作流入门套件**
+**Claude Code 与 Codex AI 辅助开发工作流入门套件**
 
-经过实战验证的 CLAUDE.md 模板 — 任务路由、错误恢复、质量门禁、知识沉淀。
+经过实战验证的 Agent 指令模板 — `CLAUDE.md`、`AGENTS.md`、任务路由、错误恢复、质量门禁、知识沉淀。
 
 [快速开始][quick-start] •
 [使用示例][usage-examples] •
@@ -51,11 +51,11 @@
 
 这只是一条规则。Forge 给你提供 17 个章节的这类经过实战验证的模式 — 它们从数百次真实会话中提炼而来，而非凭空捏造。
 
-CLAUDE.md 很强大，但从零构建一份需要数月的试错。大多数开发者永远不会自行发现熔断器（停止重试同一个失败方案）、Compact 恢复（Claude 上下文在会话中途被压缩后该怎么办）或爆炸半径协议（修改共享代码前检查影响范围）这些模式。Forge 给你骨架，你在实际使用中长出肌肉。
+Agent 指令文件很强大，但从零构建一份需要数月的试错。大多数开发者永远不会自行发现熔断器（停止重试同一个失败方案）、上下文恢复（Agent 上下文在会话中途被压缩后该怎么办）或爆炸半径协议（修改共享代码前检查影响范围）这些模式。Forge 给你骨架，你在实际使用中长出肌肉。
 
-### 为什么不直接复制别人的 CLAUDE.md？
+### 为什么不直接复制别人的指令文件？
 
-| 随机 CLAUDE.md | Forge |
+| 随机指令文件 | Forge |
 |---------------|-------|
 | 方法论和个人配置混在一起 | 只提取通用模式 |
 | 一刀切 | 两个层级：Essential（新手）+ Full（高级用户） |
@@ -94,10 +94,16 @@ claude plugin marketplace add https://github.com/eisen0419/forge
 claude plugin install forge
 ```
 
-然后在任意项目中运行 `/forge-setup`。向导会引导你完成所有步骤：
+然后在任意项目中运行 `/forge-setup`。向导可以生成 `CLAUDE.md`、`AGENTS.md` 或两者：
 
 ```
 > /forge-setup
+
+? 你想配置哪个 Agent 目标？
+  - Claude Code — 生成 CLAUDE.md
+  - Codex — 生成 AGENTS.md
+  - Both — 两者都生成
+> Both
 
 ? 你想使用哪个 Forge 层级？
   - Essential — 仅核心规则：编码规范、任务管理、Git、安全
@@ -110,7 +116,7 @@ claude plugin install forge
 ? 你的主要平台是什么？(macOS / Linux / Windows+WSL)
 > macOS
 
-? Claude 响应的首选语言？
+? Agent 响应的首选语言？
 > English
 
 ? Git 提交风格？(默认：conventional commits)
@@ -118,8 +124,8 @@ claude plugin install forge
 
 正在检测环境... zsh, npm, VS Code
 
-正在生成 Essential CLAUDE.md...
-已写入 ./CLAUDE.md (142 行，10 个章节)
+正在生成 Essential 指令文件...
+已写入 ./CLAUDE.md 和 ./AGENTS.md
 
 推荐安装以下插件来增强你的工作流：
   claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
@@ -128,7 +134,15 @@ claude plugin install forge
 
 ### 不使用插件
 
+Claude Code：
+
 1. 复制 `templates/essential.md` 或 `templates/full.md` 到你的项目，重命名为 `CLAUDE.md`
+2. 替换所有 `{{VARIABLES}}` 为你的实际值
+3. 完成
+
+Codex：
+
+1. 复制 `templates/targets/codex/essential.md` 或 `templates/targets/codex/full.md` 到你的项目，重命名为 `AGENTS.md`
 2. 替换所有 `{{VARIABLES}}` 为你的实际值
 3. 完成
 
@@ -148,29 +162,29 @@ claude plugin install forge
 > /forge-setup
 ```
 
-选择 Essential 层级。2 分钟内你就有了一份包含任务路由、Git 规范和安全规则的 CLAUDE.md。Claude 会立即开始正确路由任务 — 小修复直接实现，多步骤功能先出计划。
+选择 Essential 层级。2 分钟内你就有了一份包含任务路由、Git 规范和安全规则的 `CLAUDE.md` 或 `AGENTS.md`。Agent 会立即开始正确路由任务 — 小修复直接实现，多步骤功能先出计划。
 
 ### 初学者使用 Essential 层级
 
-你刚接触 Claude Code，不想被繁琐的流程压垮。Essential 给你 10 个涵盖基础知识的章节：
+你刚接触 AI coding agent，不想被繁琐的流程压垮。Essential 给你 10 个涵盖基础知识的章节：
 
-- **任务路由** 防止 Claude 把一个 typo 修复过度工程化
-- **验证纪律** 阻止 Claude 在没有实际运行测试的情况下声称"测试通过"
+- **任务路由** 防止 Agent 把一个 typo 修复过度工程化
+- **验证纪律** 阻止 Agent 在没有实际运行测试的情况下声称"测试通过"
 - **安全规则** 屏蔽 `rm -rf` 或 `git push --force` 等破坏性命令
 - **Git 规范** 在团队中统一 commit message 风格
 
-无需任何插件。只需在你的 repo 里放一个 CLAUDE.md 文件。
+无需任何插件。只需在你的 repo 里放一个 `CLAUDE.md` 或 `AGENTS.md` 文件。
 
 ### 高级用户使用 Full 层级 + 插件
 
-你正在同时使用 Claude Code、Compound Engineering、GSD 和 Revolve。Full 层级额外增加：
+你正在使用 Claude Code 或 Codex 的多 Agent 工作流。Full 层级额外增加：
 
-- **熔断器** — 当 Claude 连续两次尝试同一个失败方案时，它会停下来重新规划，而不是用无效重试消耗你的上下文窗口
+- **熔断器** — 当 Agent 连续两次尝试同一个失败方案时，它会停下来重新规划，而不是用无效重试消耗你的上下文窗口
 - **角色系统** — 将抽象角色（设计者、审查者）映射到 AI 提供商。你的审查者可以是 Codex，灵感来源可以是 Gemini
-- **爆炸半径协议** — 在修改任何导出函数之前，Claude 会 grep 所有调用方并将其加入验证清单
+- **爆炸半径协议** — 在修改任何导出函数之前，Agent 会 grep 所有调用方并将其加入验证清单
 - **知识沉淀** — 艰难调试出来的经验教训保存到 `docs/solutions/`，让未来的会话不再重蹈覆辙
 
-此层级可独立使用，但与 CE + GSD 组合工作流配合时效果最佳：`/ce:brainstorm` → `/ce:plan` → `/ce:run` → `/ce:review`。
+此层级可独立使用，但与 CE + GSD 组合工作流配合时效果最佳：`/ce-brainstorm` → `/ce-plan` → `/forge-run` → `/ce-code-review`。
 
 <div align="right">
 
@@ -184,9 +198,9 @@ claude plugin install forge
 |------|------|------|
 | 决策框架 | 两者 | 任何改动前三个问题 — 尽早阻断范围蔓延 |
 | 任务路由 | 两者 | 按任务类型选择正确的工作流 — 琐碎改动跳过完整流程 |
-| CE+GSD 工作流编排 | Full | brainstorm → plan → ce:run(自动) → review 四步流水线 |
+| CE+GSD 工作流编排 | Full | brainstorm → plan → forge-run(自动) → review 四步流水线 |
 | 错误恢复 | Full | 熔断器：同一方案连续失败两次 → 必须重新规划 |
-| Compact 恢复 | Full | Claude 上下文被压缩后如何恢复状态 |
+| Compact 恢复 | Full | Agent 上下文被压缩后如何恢复状态 |
 | 质量门禁 | 两者 | 基于影响范围的测试策略，而非教条 |
 | 验证纪律 | 两者 | 交付门禁 — 没有验证证据不得声称完成 |
 | 爆炸半径 | Full | 修改导出接口前先评估影响范围 |
@@ -207,7 +221,7 @@ claude plugin install forge
 Claude：[路由为轻量任务 — 直接修复，无需规划开销]
 
 你："添加 OAuth 用户认证"
-Claude：[路由为中大型任务 — 先启动 /ce:plan，识别 6 个子任务，
+Claude：[路由为中大型任务 — 先启动 /ce-plan，识别 6 个子任务，
          在写一行代码之前先问用哪个 OAuth 提供商]
 ```
 
@@ -261,9 +275,10 @@ Claude：[先 grep 调用方]
 
 | 工具 | 状态 | 增强内容 |
 |------|------|---------|
-| 独立使用 | 可用 | 无需任何插件 — 方法论完全在 CLAUDE.md 中 |
-| [Compound Engineering][ce-plugin] | 增强 | `/ce:brainstorm`、`/ce:plan`、`/ce:review`、`/ce:compound` |
-| [GSD][gsd-repo] | 增强 | `/ce:run` 调用 GSD 的 wave 并行执行引擎，自治完成实施 |
+| 独立使用 | 可用 | 无需任何插件 — 方法论完全在 `CLAUDE.md` 或 `AGENTS.md` 中 |
+| Codex | 可用 | 使用 `templates/targets/codex/*` 生成 `AGENTS.md` 工作流文件 |
+| [Compound Engineering][ce-plugin] | 增强 | `/ce-brainstorm`、`/ce-plan`、`/ce-code-review`、`/ce-compound` |
+| [GSD][gsd-repo] | 增强 | `/forge-run` 调用 GSD 的 wave 并行执行引擎，自治完成实施 |
 | gstack | 增强 | 浏览器 QA、CEO/工程计划审查 |
 | [Revolve][revolve-repo] | 增强 | 研究 pipeline + CLAUDE.md 自动进化 |
 

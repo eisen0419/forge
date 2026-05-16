@@ -6,9 +6,9 @@
 [![Claude Code][claude-badge]][claude-code]
 [![Plugin][plugin-badge]][install-url]
 
-**AI-Assisted Development Workflow Starter Kit for Claude Code**
+**AI-Assisted Development Workflow Starter Kit for Claude Code and Codex**
 
-Battle-tested CLAUDE.md templates -- task routing, error recovery, quality gates, and knowledge compounding.
+Battle-tested agent instruction templates -- `CLAUDE.md`, `AGENTS.md`, task routing, error recovery, quality gates, and knowledge compounding.
 
 [Quick Start][quick-start] •
 [Usage Examples][usage-examples] •
@@ -51,11 +51,11 @@ Sister project: **[Revolve][revolve-repo]** -- self-evolving AI research archite
 
 That's one rule. Forge gives you 17 sections of these battle-tested patterns -- extracted from hundreds of real sessions, not invented in a vacuum.
 
-CLAUDE.md is powerful, but building a good one from scratch takes months of trial and error. Most developers never discover patterns like circuit breakers (stop retrying the same failing approach), compact recovery (what to do when Claude's context gets compressed mid-session), or blast radius protocols (check impact before touching shared code). Forge gives you the skeleton. You grow the muscle through real use.
+Agent instruction files are powerful, but building a good one from scratch takes months of trial and error. Most developers never discover patterns like circuit breakers (stop retrying the same failing approach), compact recovery (what to do when context gets compressed mid-session), or blast radius protocols (check impact before touching shared code). Forge gives you the skeleton. You grow the muscle through real use.
 
-### Why Not Just Copy Someone's CLAUDE.md?
+### Why Not Just Copy Someone's Instruction File?
 
-| Random CLAUDE.md | Forge |
+| Random instruction file | Forge |
 |-----------------|-------|
 | Mixes methodology with personal config | Extracts universal patterns only |
 | One-size-fits-all | Two tiers: Essential (newcomers) + Full (power users) |
@@ -94,10 +94,16 @@ claude plugin marketplace add https://github.com/eisen0419/forge
 claude plugin install forge
 ```
 
-Then run `/forge-setup` in any project. The wizard walks you through everything:
+Then run `/forge-setup` in any project. The wizard can generate `CLAUDE.md`, `AGENTS.md`, or both:
 
 ```
 > /forge-setup
+
+? Which agent target would you like to configure?
+  - Claude Code — generate CLAUDE.md
+  - Codex — generate AGENTS.md
+  - Both — generate both files
+> Both
 
 ? Which Forge tier would you like?
   - Essential — Core rules only: coding standards, task management, git, safety
@@ -110,7 +116,7 @@ Then run `/forge-setup` in any project. The wizard walks you through everything:
 ? What's your primary platform? (macOS / Linux / Windows+WSL)
 > macOS
 
-? Preferred output language for Claude responses?
+? Preferred output language for agent responses?
 > English
 
 ? Git commit style? (default: conventional commits)
@@ -118,8 +124,8 @@ Then run `/forge-setup` in any project. The wizard walks you through everything:
 
 Detecting environment... zsh, npm, VS Code
 
-Generating Essential CLAUDE.md...
-Written to ./CLAUDE.md (142 lines, 10 sections)
+Generating Essential instruction files...
+Written to ./CLAUDE.md and ./AGENTS.md
 
 Recommended plugins to enhance your workflow:
   claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
@@ -128,7 +134,15 @@ Recommended plugins to enhance your workflow:
 
 ### Without Plugin
 
+For Claude Code:
+
 1. Copy `templates/essential.md` or `templates/full.md` to your project as `CLAUDE.md`
+2. Replace all `{{VARIABLES}}` with your actual values
+3. Done
+
+For Codex:
+
+1. Copy `templates/targets/codex/essential.md` or `templates/targets/codex/full.md` to your project as `AGENTS.md`
 2. Replace all `{{VARIABLES}}` with your actual values
 3. Done
 
@@ -148,29 +162,29 @@ You just initialized a new repo and want Claude to follow consistent patterns fr
 > /forge-setup
 ```
 
-Pick Essential tier. In 2 minutes you have a CLAUDE.md with task routing, git conventions, and safety rules. Claude immediately starts routing tasks correctly -- small fixes go straight to implementation, multi-step features get a plan first.
+Pick Essential tier. In 2 minutes you have a `CLAUDE.md` or `AGENTS.md` with task routing, git conventions, and safety rules. Your agent immediately starts routing tasks correctly -- small fixes go straight to implementation, multi-step features get a plan first.
 
 ### Junior developer with Essential tier
 
-You're new to Claude Code and don't want to be overwhelmed. Essential gives you 10 sections that cover the fundamentals:
+You're new to AI coding agents and don't want to be overwhelmed. Essential gives you 10 sections that cover the fundamentals:
 
-- **Task routing** prevents Claude from over-engineering a typo fix
-- **Verification discipline** stops Claude from claiming "tests pass" without running them
+- **Task routing** prevents agents from over-engineering a typo fix
+- **Verification discipline** stops agents from claiming "tests pass" without running them
 - **Safety rules** block destructive commands like `rm -rf` or `git push --force`
 - **Git conventions** enforce consistent commit messages across the team
 
-No plugins required. Just a CLAUDE.md file in your repo.
+No plugins required. Just a `CLAUDE.md` or `AGENTS.md` file in your repo.
 
 ### Power user with Full tier + plugins
 
-You're running Claude Code with Compound Engineering and Revolve. Full tier adds:
+You're running Claude Code or Codex with a multi-agent workflow. Full tier adds:
 
-- **Circuit breaker** -- when Claude tries the same failing approach twice, it stops and re-plans instead of burning your context window with retries
+- **Circuit breaker** -- when an agent tries the same failing approach twice, it stops and re-plans instead of burning your context window with retries
 - **Role system** -- map abstract roles (designer, reviewer) to AI providers. Your reviewer might be Codex, your inspiration source might be Gemini
-- **Blast radius protocol** -- before touching any exported function, Claude greps all callers and adds them to the verification list
+- **Blast radius protocol** -- before touching any exported function, the agent greps all callers and adds them to the verification list
 - **Knowledge compounding** -- hard-won debugging lessons get saved to `docs/solutions/` so future sessions don't repeat the same mistakes
 
-This tier works standalone but shines when paired with the CE + GSD combined workflow: `/ce:brainstorm` → `/ce:plan` → `/ce:run` → `/ce:review`.
+This tier works standalone but shines when paired with the CE + GSD combined workflow: `/ce-brainstorm` → `/ce-plan` → `/forge-run` → `/ce-code-review`.
 
 <div align="right">
 
@@ -184,9 +198,9 @@ This tier works standalone but shines when paired with the CE + GSD combined wor
 |---------|------|-------------|
 | Decision Framework | Both | Three questions before any change -- cut scope creep early |
 | Task Routing | Both | Route tasks to right workflow -- skip ceremony for trivial changes |
-| CE+GSD Workflow | Full | brainstorm → plan → ce:run (automatic) → review pipeline |
+| CE+GSD Workflow | Full | brainstorm → plan → forge-run (automatic) → review pipeline |
 | Error Recovery | Full | Circuit breaker: same approach fails twice, must re-plan |
-| Compact Recovery | Full | What to do when Claude's context gets compressed mid-session |
+| Compact Recovery | Full | What to do when agent context gets compressed mid-session |
 | Quality Gates | Both | Testing strategy tied to blast radius, not dogma |
 | Verification | Both | Delivery gate -- no claiming done without evidence |
 | Blast Radius | Full | Assess impact before touching exported interfaces |
@@ -207,7 +221,7 @@ You: "fix the typo in the footer"
 Claude: [routes as Lightweight -- direct fix, no planning overhead]
 
 You: "add user authentication with OAuth"
-Claude: [routes as Medium/Large -- starts with /ce:plan, identifies 6 subtasks,
+Claude: [routes as Medium/Large -- starts with /ce-plan, identifies 6 subtasks,
          asks which OAuth provider before writing a line of code]
 ```
 
@@ -261,9 +275,10 @@ Claude: [greps callers first]
 
 | Tool | Status | What it adds |
 |------|--------|-------------|
-| Standalone | Works | No plugins needed -- methodology lives in CLAUDE.md |
-| [Compound Engineering][ce-plugin] | Enhanced | `/ce:brainstorm`, `/ce:plan`, `/ce:review`, `/ce:compound` |
-| [GSD][gsd-repo] | Enhanced | `/ce:run` invokes GSD's wave-parallel execution engine for autonomous implementation |
+| Standalone | Works | No plugins needed -- methodology lives in `CLAUDE.md` or `AGENTS.md` |
+| Codex | Works | Use `templates/targets/codex/*` to generate an `AGENTS.md` workflow file |
+| [Compound Engineering][ce-plugin] | Enhanced | `/ce-brainstorm`, `/ce-plan`, `/ce-code-review`, `/ce-compound` |
+| [GSD][gsd-repo] | Enhanced | `/forge-run` invokes GSD's wave-parallel execution engine for autonomous implementation |
 | gstack | Enhanced | Browser QA, CEO/eng plan review |
 | [Revolve][revolve-repo] | Enhanced | Research pipeline + CLAUDE.md auto-evolution |
 

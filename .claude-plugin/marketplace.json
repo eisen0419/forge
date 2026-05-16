@@ -1,13 +1,13 @@
 {
   "name": "forge",
   "owner": { "name": "Eisen", "url": "https://github.com/eisen0419" },
-  "metadata": { "description": "AI-assisted development workflow starter kit", "version": "1.0.0" },
+  "metadata": { "description": "AI-assisted development workflow starter kit for Claude Code and Codex", "version": "0.1.0" },
   "plugins": [{
     "name": "forge",
-    "description": "Battle-tested CLAUDE.md templates for AI-assisted development. Task routing, error recovery, quality gates, knowledge compounding.",
+    "description": "Battle-tested CLAUDE.md and AGENTS.md templates for AI-assisted development. Task routing, error recovery, quality gates, knowledge compounding.",
     "author": { "name": "Eisen", "url": "https://github.com/eisen0419" },
     "homepage": "https://github.com/eisen0419/forge",
-    "tags": ["workflow", "claude-md", "methodology", "starter-kit"],
-    "source": "."
+    "tags": ["workflow", "claude-md", "agents-md", "methodology", "starter-kit"],
+    "source": "./"
   }]
 }

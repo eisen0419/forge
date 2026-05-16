@@ -1,31 +1,45 @@
 ---
 name: forge-setup
-description: "This skill should be used when the user asks to 'set up Forge', 'configure Forge workflow', or 'forge setup'. Interactive wizard that generates a customized CLAUDE.md from battle-tested workflow templates."
+description: "This skill should be used when the user asks to 'set up Forge', 'configure Forge workflow', or 'forge setup'. Interactive wizard that generates customized CLAUDE.md and/or AGENTS.md files from battle-tested workflow templates."
 argument-hint: "(no arguments)"
 ---
 
-You are running the **Forge Setup Wizard**. Guide the user step-by-step to generate a customized `CLAUDE.md` from Forge templates.
+You are running the **Forge Setup Wizard**. Guide the user step-by-step to generate customized agent instruction files from Forge templates.
 
-## Step 1: Experience Level
+## Step 1: Agent Target
+
+Ask the user via AskUserQuestion:
+
+> Which agent target would you like to configure?
+>
+> - **Claude Code** — generate `CLAUDE.md`
+> - **Codex** — generate `AGENTS.md`
+> - **Both** — generate both files from the same Forge tier
+>
+> Which target? (Claude Code / Codex / Both)
+
+Store answer as `TARGET`.
+
+## Step 2: Experience Level
 
 Ask the user via AskUserQuestion:
 
 > Which Forge tier would you like?
 >
 > - **Essential** — Newcomers. Core rules only: coding standards, task management, git conventions, safety rules. Minimal overhead, easy to start.
-> - **Full** — Power users. Complete methodology: circuit breaker error recovery, role system (designer/reviewer/executor/inspiration), knowledge compounding via `/ce:compound`, peer review framework, subagent strategy, and testing discipline.
+> - **Full** — Power users. Complete methodology: circuit breaker error recovery, role system (designer/reviewer/executor/inspiration), knowledge compounding via `/ce-compound`, peer review framework, subagent strategy, and testing discipline.
 >
 > Which tier? (Essential / Full)
 
 Store answer as `TIER`.
 
-## Step 2: Basic Info
+## Step 3: Basic Info
 
 Ask each question **one at a time** via AskUserQuestion:
 
-1. "What's your name? (used to personalize CLAUDE.md)"
+1. "What's your name? (used to personalize the generated instruction file)"
 2. "What's your primary platform? (macOS / Linux / Windows+WSL)"
-3. "Preferred output language for Claude responses? (English / Chinese / other — specify)"
+3. "Preferred output language for agent responses? (English / Chinese / other — specify)"
 4. "Git commit style? (Press Enter for default: conventional commits — e.g. `feat(scope): summary`)"
 
 Meanwhile, auto-detect environment via Bash (run in parallel with questions where possible):
@@ -33,7 +47,7 @@ Meanwhile, auto-detect environment via Bash (run in parallel with questions wher
 - Editor: check `code --version` → VS Code, else `vim --version`, else "unspecified"
 - Package managers: check `which npm`, `which pip`, `which brew`, combine detected ones
 
-## Step 3: Full Tier Additional Questions
+## Step 4: Full Tier Additional Questions
 
 Skip this step if TIER is Essential.
 
@@ -43,7 +57,7 @@ Ask via AskUserQuestion:
    - 0: Targeted verification (small, low-risk changes)
    - 1: Regression tests (local behavior changes)
    - 2: TDD (new features, shared logic, high risk)
-   - 3: Code review via /ce:review
+   - 3: Code review via /ce-code-review
    - 4: Completion verification + delivery gate
    (Enter a number 0–4, default: 1)"
 
@@ -57,15 +71,22 @@ Ask via AskUserQuestion:
    - "Provider for `executor` role? (claude / codex / gemini, default: claude)"
    - "Provider for `inspiration` role? (claude / codex / gemini, default: gemini)"
 
-## Step 4: Generate CLAUDE.md
+## Step 5: Generate Instruction File(s)
 
-1. Determine template path based on TIER:
-   - Essential: `${CLAUDE_PLUGIN_ROOT}/templates/essential.md`
-   - Full: `${CLAUDE_PLUGIN_ROOT}/templates/full.md`
+1. Determine output files based on TARGET:
+   - Claude Code: generate `./CLAUDE.md`
+   - Codex: generate `./AGENTS.md`
+   - Both: generate both `./CLAUDE.md` and `./AGENTS.md`
 
-2. Read the template file via the Read tool.
+2. Determine template path based on TARGET and TIER:
+   - Claude Code Essential: `${CLAUDE_PLUGIN_ROOT}/templates/essential.md`
+   - Claude Code Full: `${CLAUDE_PLUGIN_ROOT}/templates/full.md`
+   - Codex Essential: `${CLAUDE_PLUGIN_ROOT}/templates/targets/codex/essential.md`
+   - Codex Full: `${CLAUDE_PLUGIN_ROOT}/templates/targets/codex/full.md`
 
-3. Replace all `{{VARIABLES}}` with collected values:
+3. Read each required template file via the Read tool.
+
+4. Replace all `{{VARIABLES}}` with collected values:
    - `{{USER_NAME}}` → user's name
    - `{{PLATFORM}}` → platform answer or auto-detected
    - `{{SHELL}}` → auto-detected shell (e.g. zsh, bash)
@@ -80,35 +101,38 @@ Ask via AskUserQuestion:
      - `{{ROLE_EXECUTOR}}` → executor provider
      - `{{ROLE_INSPIRATION}}` → inspiration provider
 
-4. **Verify**: scan output for any remaining `{{`. If found, replace with sensible defaults or empty string, and note which variables were unresolved.
+5. **Verify**: scan each output for any remaining `{{`. If found, replace with sensible defaults or empty string, and note which variables were unresolved.
 
-## Step 5: Write CLAUDE.md
+## Step 6: Write Instruction File(s)
 
-1. Check if `./CLAUDE.md` exists in the current working directory.
+For each output file (`CLAUDE.md` and/or `AGENTS.md`):
+
+1. Check if the file exists in the current working directory.
 
 2. If it **exists**: show a brief summary of what will change, then ask via AskUserQuestion:
-   > `CLAUDE.md` already exists. What would you like to do?
+   > `<file>` already exists. What would you like to do?
    > - **overwrite** — replace it directly
-   > - **backup** — copy existing to `CLAUDE.md.backup`, then write new
+   > - **backup** — copy existing to `<file>.backup`, then write new
    > - **cancel** — abort without changes
 
-   - If "cancel": stop and inform the user. Do not write anything.
-   - If "backup": copy `./CLAUDE.md` → `./CLAUDE.md.backup` via Bash, then write new file.
+   - If "cancel": skip this file and continue with any other selected target.
+   - If "backup": copy `./<file>` → `./<file>.backup` via Bash, then write new file.
    - If "overwrite": write directly.
 
-3. Write generated content to `./CLAUDE.md` via the Write tool.
+3. Write generated content via the Write tool.
 
-4. If write fails: save to `./CLAUDE.md.forge` instead and tell user:
-   > Write failed. Content saved to `./CLAUDE.md.forge`. Please copy it manually:
-   > `cp ./CLAUDE.md.forge ./CLAUDE.md`
+4. If write fails: save to `./<file>.forge` instead and tell user:
+   > Write failed. Content saved to `./<file>.forge`. Please copy it manually:
+   > `cp ./<file>.forge ./<file>`
 
-## Step 6: Recommend Plugins
+## Step 7: Recommend Enhancements
 
 Print the following (do **NOT** install anything automatically):
 
 ```
 Recommended plugins to enhance your workflow:
 
+For Claude Code:
 Compound Engineering (CE) — AI-powered planning, review, and knowledge management:
   claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
   claude plugin install compound-engineering
@@ -116,18 +140,23 @@ Compound Engineering (CE) — AI-powered planning, review, and knowledge managem
 Revolve — Research pipeline + CLAUDE.md auto-evolution:
   claude plugin marketplace add https://github.com/eisen0419/revolve
   claude plugin install revolve
+
+For Codex:
+  Use the generated AGENTS.md as the project instruction entrypoint.
+  Add project-local Codex skills later if you want command-like workflows.
 ```
 
-## Step 7: Completion
+## Step 8: Completion
 
 Report success:
 
 > Forge setup complete!
 >
-> - File written: `./CLAUDE.md`
+> - File(s) written: [`./CLAUDE.md` and/or `./AGENTS.md`]
+> - Target: [Claude Code / Codex / Both]
 > - Tier: [Essential / Full]
 >
 > **Next steps:**
-> 1. Review `./CLAUDE.md` and adjust any preferences
+> 1. Review the generated instruction file(s) and adjust any preferences
 > 2. Install recommended plugins above if desired
-> 3. Start a new Claude session — it will automatically read your new `CLAUDE.md`
+> 3. Start a new agent session so it reads the new instructions
