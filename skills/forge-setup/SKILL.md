@@ -71,6 +71,50 @@ Ask via AskUserQuestion:
    - "Provider for `executor` role? (claude / codex / gemini, default: claude)"
    - "Provider for `inspiration` role? (claude / codex / gemini, default: gemini)"
 
+## Step 4.5: Optional Runtime Hooks (Full tier only)
+
+Skip this step if TIER is Essential.
+
+Forge ships installable shell hooks that run at agent lifecycle events. They live in `${CLAUDE_PLUGIN_ROOT}/templates/hooks/` and install **globally** into `~/.claude/hooks/` + `~/.claude/settings.json`. See `templates/hooks/README.md` for the full catalog.
+
+First, list available hooks by reading the manifest:
+
+```bash
+jq -r '.hooks[] | "- " + .id + " (" + .event + ") — " + (.description.en)' \
+  "${CLAUDE_PLUGIN_ROOT}/templates/hooks/manifest.json"
+```
+
+Then ask via AskUserQuestion:
+
+> Install runtime hooks into `~/.claude/`? These run on every Claude Code / Codex session globally.
+>
+> Available now:
+> - **project-context** — forces a "Project / Current stage" line at the top of every first reply (4-step fallback: README → manifest → tasks/todo → commits)
+>
+> What to install?
+> - **all** — install every hook in the manifest
+> - **project-context** — just the one above
+> - **none** — skip (you can run `scripts/install-hook.sh` later)
+
+Store answer as `HOOKS_CHOICE`.
+
+If `HOOKS_CHOICE` is not "none", confirm before mutating the user's settings:
+
+> About to run: `scripts/install-hook.sh ${HOOKS_CHOICE}`
+>
+> This will:
+> 1. Copy hook script(s) to `~/.claude/hooks/`
+> 2. Back up `~/.claude/settings.json` (timestamped)
+> 3. Register the hook(s) under their declared event
+>
+> Hooks pick their output language at runtime by scanning your CLAUDE.md and `~/.claude/rules/` for CJK density — no install-time choice needed. To force a language later, export `FORGE_HOOK_LANG=zh` or `=en`.
+>
+> Proceed? (yes / no)
+
+If user declines → set `HOOKS_CHOICE=none` and continue.
+
+Defer actual installation to Step 6.5 (after files are written, so partial failures don't leave a half-configured machine).
+
 ## Step 5: Generate Instruction File(s)
 
 1. Determine output files based on TARGET:
@@ -124,6 +168,39 @@ For each output file (`CLAUDE.md` and/or `AGENTS.md`):
 4. If write fails: save to `./<file>.forge` instead and tell user:
    > Write failed. Content saved to `./<file>.forge`. Please copy it manually:
    > `cp ./<file>.forge ./<file>`
+
+## Step 6.5: Install Selected Hooks
+
+Skip this step if `HOOKS_CHOICE` from Step 4.5 is "none" or unset.
+
+Run the installer via Bash:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/install-hook.sh" "${HOOKS_CHOICE}"
+```
+
+Capture stdout/stderr. The installer prints one line per hook (`✓ installed: ...`, `✓ registered: ...`, plus a `verify:` line showing the first stdout line the hook will actually produce in this user's environment — useful sanity check on the runtime language detection).
+
+Report to the user:
+
+> Installed runtime hook(s):
+> - `<id>` → `~/.claude/hooks/<marker>.sh`
+>
+> Settings backup at `~/.claude/settings.json.bak.<timestamp>`.
+> Start a new agent session for the hook(s) to take effect.
+>
+> Language is detected at runtime. To force a language, export `FORGE_HOOK_LANG=zh` or `=en` in your shell profile before launching the agent.
+
+If the installer exits non-zero:
+
+> ⚠ Hook installation failed. The instruction file(s) were still written successfully.
+>
+> Common causes:
+> - `jq` not installed → `brew install jq` (macOS) or your distro's package manager, then re-run:
+>   `${CLAUDE_PLUGIN_ROOT}/scripts/install-hook.sh ${HOOKS_CHOICE}`
+> - Permission denied on `~/.claude/` → check ownership
+>
+> To uninstall later: `${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-hook.sh <id>`
 
 ## Step 7: Recommend Enhancements
 
@@ -186,8 +263,9 @@ Report success:
 > - File(s) written: [`./CLAUDE.md` and/or `./AGENTS.md`]
 > - Target: [Claude Code / Codex / Both]
 > - Tier: [Essential / Full]
+> - Runtime hooks installed: [`<comma-separated ids>` / none]   ← omit this line if HOOKS_CHOICE was "none"
 >
 > **Next steps:**
 > 1. Review the generated instruction file(s) and adjust any preferences
 > 2. Install recommended plugins above if desired
-> 3. Start a new agent session so it reads the new instructions
+> 3. Start a new agent session so it reads the new instructions (and triggers any installed hooks)
