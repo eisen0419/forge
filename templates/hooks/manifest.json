@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.1",
+  "hooks": [
+    {
+      "id": "project-context",
+      "name": {
+        "en": "Project Context Zero-Step",
+        "zh": "项目认知第零步"
+      },
+      "description": {
+        "en": "On every session start, instructs the agent to emit one line of 'project positioning + current stage' before answering. Uses a 4-step fallback chain: project root CLAUDE.md/AGENTS.md/README.md → package.json/pyproject.toml/Cargo.toml description → tasks/todo.md → last 5 commit messages.",
+        "zh": "每次会话开头注入指令，要求 Agent 在响应顶部输出『项目定位 / 当前阶段』一行。4 步判断链：项目根 CLAUDE.md/AGENTS.md/README.md → package.json/pyproject.toml/Cargo.toml 的 description → tasks/todo.md → 最近 5 条 commit message。"
+      },
+      "event": "SessionStart",
+      "marker": "forge-project-context",
+      "script": "project-context/hook.sh",
+      "language": "adaptive",
+      "scope": "global",
+      "version": "1.1.0"
+    }
+  ]
+}
