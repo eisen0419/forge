@@ -2,3 +2,6 @@
 __pycache__/
 .context/
 .DS_Store
+
+# Personal todos — not for open source
+tasks/
