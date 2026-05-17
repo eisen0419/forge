@@ -170,4 +170,4 @@ During work:
 1. Write plan to `tasks/todo.md` with checkable items
 2. Confirm plan with user before implementing
 3. Check off items as completed
-4. Record lessons learned in `tasks/lessons.md`
+4. Record user corrections + reasons in `tasks/lessons.md`; re-read it at next session start (self-improvement loop)

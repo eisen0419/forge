@@ -153,6 +153,7 @@ Long-term memory should live in project artifacts, not in this file:
 - Architecture decisions: `docs/decisions/`
 - GSD project state: `.planning/`
 - CE learning: `/ce-compound`
+- **Self-improvement loop**: when corrected, append the correction + reason to `tasks/lessons.md`; re-read it at every session start. Graduate recurring lessons to `docs/solutions/` or `CLAUDE.md` itself.
 
 ## Git And Safety
 
