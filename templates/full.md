@@ -109,6 +109,15 @@ Do not add or switch these without explicit approval:
 - If verification cannot run, say why and lower the completion claim.
 - For docs/templates, check placeholders, links/paths where practical, and any JSON/TOML/plugin manifests touched.
 
+## Coding Standards
+
+Soft targets: function ≤ 50 lines, file ≤ 300 lines, nesting ≤ 3, complexity ≤ 10. No magic numbers.
+
+These are **targets, not gates**. When a unit exceeds a threshold, apply this 3-step protocol:
+1. **Can extraction help?** Pull out sub-steps with real semantic boundaries — if yes, extract.
+2. **Is the size inherent?** State machines, dispatch tables, long `switch`/`match`, serializers, and test fixtures often must stay whole. Add one comment line stating the reason (e.g. `// state machine: extraction would leak state`).
+3. **Review by readability, not the metric.** Don't reject code purely for exceeding a threshold.
+
 ## Blast Radius
 
 Before touching exported functions, public APIs, shared types, schemas, auth, payments, persistence, CI, or root config:
@@ -144,6 +153,7 @@ Long-term memory should live in project artifacts, not in this file:
 - Architecture decisions: `docs/decisions/`
 - GSD project state: `.planning/`
 - CE learning: `/ce-compound`
+- **Self-improvement loop**: when corrected, append the correction + reason to `tasks/lessons.md`; re-read it at every session start. Graduate recurring lessons to `docs/solutions/` or `CLAUDE.md` itself.
 
 ## Git And Safety
 

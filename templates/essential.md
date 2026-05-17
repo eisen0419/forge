@@ -114,6 +114,10 @@ Do not add or switch these without explicit approval:
   - Verify referenced files still exist before recommending from memory
   - Without verification evidence, never claim "passing", "complete", or "ready to submit"
 
+## Coding Standards
+
+Soft targets: function ≤ 50 lines, file ≤ 300 lines, nesting ≤ 3, complexity ≤ 10. **Targets, not gates** — when a unit exceeds, ask: can it be extracted with semantic boundaries? Or is the size inherent (state machine, dispatch table, fixture)? Keep inherent ones whole with a one-line reason comment. Review by readability, not the metric.
+
 <!-- SECTION: Git Conventions
   What: Branch naming, commit format, and safety rules
   Why: Consistent git hygiene prevents accidents and makes history readable
@@ -156,4 +160,4 @@ During work:
 1. Write plan to `tasks/todo.md` with checkable items
 2. Confirm plan with user before implementing
 3. Check off items as completed
-4. Record lessons learned in `tasks/lessons.md`
+4. Record user corrections + reasons in `tasks/lessons.md`; re-read it at next session start (self-improvement loop)
