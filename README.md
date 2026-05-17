@@ -126,10 +126,11 @@ Forge templates are router-first instruction files, not architecture dumps.
 | Task Routing | Yes | Yes | Keep small tasks light and risky tasks structured |
 | Do Not Introduce | Yes | Yes | Block unapproved dependencies, package managers, CI, schema, migrations, and secret-bearing state |
 | Verification Rules | Yes | Yes | Prevent unsupported "done" claims |
+| Coding Standards | Yes | Yes | Soft size/complexity targets with an explicit escape hatch for inherent-size code (state machines, dispatch tables, fixtures) |
 | Multi-Agent Router | No | Yes | Choose across Forge, CE, GSD, gstack, Waza, and Revolve |
 | Blast Radius | No | Yes | Search callers and dependents before touching shared interfaces |
 | Local Instruction Files | No | Yes | Add short local guardrails for auth, payments, infra, migrations, generated SDKs |
-| Hooks And Memory | No | Yes | Keep hooks objective and store durable learning in docs |
+| Hooks And Memory | No | Yes | Keep hooks objective; persist `tasks/lessons.md` self-improvement loop; store durable learning in `docs/` |
 
 Recommended local files:
 
@@ -138,6 +139,29 @@ Recommended local files:
 - `docs/solutions/`: reusable fixes and lessons
 - `docs/decisions/`: architecture decisions
 - `.planning/`: GSD project state when GSD owns execution
+
+## Runtime Hooks
+
+Templates encode static rules. Hooks encode **runtime behaviour** — actual scripts the agent runtime executes at lifecycle events (`SessionStart`, future others).
+
+Forge ships a manifest-driven hook system:
+
+```bash
+# Install one hook (globally into ~/.claude/hooks + ~/.claude/settings.json)
+scripts/install-hook.sh project-context
+
+# Install everything in the manifest
+scripts/install-hook.sh all
+
+# Uninstall
+scripts/uninstall-hook.sh project-context
+```
+
+| Hook ID | Event | Language | What it does |
+|---------|-------|----------|--------------|
+| [`project-context`](./templates/hooks/project-context/) | `SessionStart` | Adaptive (CJK density scan) | Before every first reply, makes the agent emit one line: `Project: <X>. Current stage: <Y>.` using a 4-step fallback chain (README → manifest description → `tasks/todo.md` → recent commits). Override language with `FORGE_HOOK_LANG=zh|en`. |
+
+The `forge-setup` wizard offers optional hook installation at Step 4.5. See [`templates/hooks/README.md`](./templates/hooks/README.md) for the manifest schema and the three-step recipe for adding your own hook.
 
 ## Workflow Add-ons
 

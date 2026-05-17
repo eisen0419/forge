@@ -126,10 +126,11 @@ Forge 模板是 router-first 指令文件，不是架构说明书。
 | Task Routing | 是 | 是 | 小任务轻量处理，高风险任务结构化处理 |
 | Do Not Introduce | 是 | 是 | 阻止未经批准的依赖、包管理器、CI、schema、migration 和 secret 风险状态 |
 | Verification Rules | 是 | 是 | 防止没有证据的“完成”声明 |
+| Coding Standards | 是 | 是 | 函数大小、复杂度等软阈值，并附「阈值例外」3 步判定，避免对状态机 / dispatch 表 / fixture 等天然超限代码盲目拆分 |
 | Multi-Agent Router | 否 | 是 | 在 Forge、CE、GSD、gstack、Waza、Revolve 之间选择路径 |
 | Blast Radius | 否 | 是 | 修改共享接口前搜索调用方和依赖 |
 | Local Instruction Files | 否 | 是 | 为 auth、payments、infra、migrations、生成 SDK 等目录增加局部护栏 |
-| Hooks And Memory | 否 | 是 | hooks 只做客观检查，长期经验沉淀到文档 |
+| Hooks And Memory | 否 | 是 | hooks 只做客观检查；持久化 `tasks/lessons.md` 自改进闭环；长期经验沉淀到 `docs/` |
 
 推荐文件分工：
 
@@ -138,6 +139,29 @@ Forge 模板是 router-first 指令文件，不是架构说明书。
 - `docs/solutions/`：可复用修复和经验。
 - `docs/decisions/`：架构决策。
 - `.planning/`：当 GSD 负责执行时保存项目状态。
+
+## 运行时 Hooks
+
+模板编码的是**静态规则**。Hooks 编码的是**运行时行为**——在 agent 生命周期事件（`SessionStart` 及其他未来事件）实际执行的脚本。
+
+Forge 内置一套 manifest 驱动的 hook 系统：
+
+```bash
+# 装单个 hook（全局装到 ~/.claude/hooks + ~/.claude/settings.json）
+scripts/install-hook.sh project-context
+
+# 装 manifest 里的全部 hook
+scripts/install-hook.sh all
+
+# 卸载
+scripts/uninstall-hook.sh project-context
+```
+
+| Hook ID | 事件 | 语言 | 做什么 |
+|---------|------|------|--------|
+| [`project-context`](./templates/hooks/project-context/) | `SessionStart` | 自适应（CJK 密度扫描） | 每次会话首回答前，强制 agent 在响应顶部输出一行：`项目定位: <X>。当前阶段: <Y>。`。使用 4 步降级链（README → manifest description → `tasks/todo.md` → 最近 commit）。可用 `FORGE_HOOK_LANG=zh\|en` 强制语言。 |
+
+`forge-setup` 向导的 Step 4.5 提供可选 hook 安装。manifest schema 与「如何添加新 hook」3 步配方见 [`templates/hooks/README.md`](./templates/hooks/README.md)。
 
 ## 工作流增强
 
