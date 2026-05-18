@@ -8,6 +8,16 @@
 # Fingerprint formula (must stay stable across all tooling):
 #   sha1(f"{error_kind[:30].lower()}|{tool_name or 'unknown'}").hexdigest()[:12]
 #
+# Contract: error_kind MUST be ASCII (drawn from the canonical kinds in
+# templates/hooks/auto-evolve-collector/hook.sh::classify_error_kind, currently:
+# read-before-edit, permission denied, no such file, command not found,
+# tls handshake timeout, traceback, exception, failed, error). This matters
+# because python's str slicing (kind[:30]) counts codepoints while BSD `cut -c`
+# counts bytes; the ASCII-only contract makes the truncation byte-safe so the
+# fingerprint stays identical across the Python hook and the bash bookkeep
+# script. If you ever introduce a non-ASCII error_kind, the formula must be
+# unified across all three implementations before that kind is allowed to flow.
+#
 # Fields are grouped by writer:
 #   [hook]   — auto-populated by the auto-evolve-collector hook on first sight
 #   [user]   — left empty by the hook; you fill in once verified
