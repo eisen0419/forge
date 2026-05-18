@@ -176,18 +176,17 @@ Crucible is an opt-in cross-session learning store, templated at [`templates/cru
 For L2+ high-risk work (`git push`, migrations, auth, schema changes) the agent reads these before acting, follows the matching `correct_action`, and bumps bookkeeping via [`scripts/crucible-bookkeep.sh hit <fingerprint>`](./scripts/crucible-bookkeep.sh). Population is either manual or automatic via the `auto-evolve-collector` hook (above).
 
 ```bash
-# Stage Crucible into ~/.claude/crucible/ (one-time)
-mkdir -p ~/.claude/crucible
-cp -r templates/crucible/{README.md,schemas} ~/.claude/crucible/
-mkdir -p ~/.claude/crucible/{failed-directions,golden-cases}
-cd ~/.claude/crucible && git init && git add . && git commit -m "init crucible"
+# Install (idempotent; rerunning refreshes README + schemas, preserves user data)
+scripts/install-crucible.sh                  # README + schemas + empty stores + git init
+scripts/install-crucible.sh --with-seeds     # also copy the worked-example yamls
 
-# (Optional) seed with the worked example
-cp templates/crucible/seeds/failed-direction.example.yaml ~/.claude/crucible/failed-directions/example.yaml
-cp templates/crucible/seeds/golden-case.example.yaml ~/.claude/crucible/golden-cases/gc_example.yaml
+# Uninstall (rename, not delete — preserves user-edited correct_action / confidence fields)
+scripts/uninstall-crucible.sh
 ```
 
-Then add the agent-facing prose to your `CLAUDE.md` / `AGENTS.md` per [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) — without that splice, the directory just sits there.
+The Full-tier templates ship the [`## Pre-Flight Protocol`](./templates/core/sections/18-pre-flight-protocol.md) section that tells the agent **when** to read Crucible (before any L3 high-risk command) and **how** (state extract → grep failed-directions → follow `correct_action` + bookkeep → write golden case). Without that section spliced into your `CLAUDE.md` / `AGENTS.md`, the directory just sits there — see [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) for the wiring.
+
+`forge-setup` (Full tier) offers Crucible install at Step 4.6 + executes at Step 6.6, paired with the `auto-evolve-collector` hook from Step 4.5.
 
 | File | Purpose |
 |------|---------|
@@ -195,7 +194,9 @@ Then add the agent-facing prose to your `CLAUDE.md` / `AGENTS.md` per [`docs/wor
 | [`templates/crucible/schemas/`](./templates/crucible/schemas/) | Authoritative yaml schemas for both record types, annotated by writer. |
 | [`templates/crucible/seeds/`](./templates/crucible/seeds/) | Worked example: `df53a88d1096` failed direction ⇄ `gc_example_001` golden case. |
 | [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh) | Four subcommands: `hit`, `list`, `validate`, `gen-fingerprint`. |
-| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | Runtime guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`. |
+| [`scripts/install-crucible.sh`](./scripts/install-crucible.sh) / [`uninstall-crucible.sh`](./scripts/uninstall-crucible.sh) | Wizard-replayable install + rename-safe uninstall. |
+| [`templates/core/sections/18-pre-flight-protocol.md`](./templates/core/sections/18-pre-flight-protocol.md) | Canonical agent-facing prose; Full-tier templates already splice this in. |
+| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | Runtime guide: L0–L3 task routing, the pre-flight protocol, write-back cadence. |
 
 ## Workflow Add-ons
 

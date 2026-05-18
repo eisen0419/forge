@@ -7,16 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-18
+
 ### Added
 
-- **Pre-Flight Protocol section** — Full-tier templates now splice in a four-step pre-flight checklist for L3 high-risk tasks (`git push`, `rm -rf`, migrations, auth, schema, force-push, etc.): state extract → Crucible failed-directions retrieval → follow `correct_action` + bookkeep on hit → write golden case on miss. Drives the agent to actually read `~/.claude/crucible/` before acting, rather than letting the directory sit unused.
+- **Pre-Flight Protocol section** ([#11](https://github.com/eisen0419/forge/pull/11), merged in [`62316db`](https://github.com/eisen0419/forge/commit/62316db)) — Full-tier templates now splice in a four-step pre-flight checklist for L3 high-risk tasks (`git push`, `rm -rf`, migrations, auth, schema, force-push, etc.): state extract → Crucible failed-directions retrieval → follow `correct_action` + bookkeep on hit → write golden case on miss. Drives the agent to actually read `~/.claude/crucible/` before acting, rather than letting the directory sit unused.
   - `templates/core/sections/18-pre-flight-protocol.md` — canonical source with full SECTION header (What / Why / Customize / Depends-on).
   - `templates/full.md` and `templates/targets/codex/full.md` now contain a tightened ~14-line version of the protocol, spliced between `## Task Routing` and `## Multi-Agent Router`. Line budget: full.md 186/200, codex/full.md 186/200 (still under).
   - Essential-tier templates intentionally unchanged — pre-flight requires Crucible, which is a Full-tier opt-in.
-- **`scripts/install-crucible.sh`** + **`scripts/uninstall-crucible.sh`** — Crucible installer/uninstaller pair, mirroring the `install-hook.sh` / `uninstall-hook.sh` pattern.
+- **`scripts/install-crucible.sh`** + **`scripts/uninstall-crucible.sh`** ([#12](https://github.com/eisen0419/forge/pull/12), merged in [`c4ed7ef`](https://github.com/eisen0419/forge/commit/c4ed7ef)) — Crucible installer/uninstaller pair, mirroring the `install-hook.sh` / `uninstall-hook.sh` pattern.
   - `install-crucible.sh`: stages `templates/crucible/{README.md,schemas}` into `~/.claude/crucible/`, creates `failed-directions/` + `golden-cases/` subdirs, optionally seeds the worked-example yamls (`--with-seeds`), optionally inits a git repo for cross-machine sync (`--no-git` opts out). Idempotent — README + schemas refresh on every run; user-edited data is never touched.
   - `uninstall-crucible.sh`: **renames** the install dir to `~/.claude/crucible.removed.<timestamp>` rather than deleting it, because user-edited `correct_action` / `confidence` / `linked_golden_case` fields cannot be recovered if dropped by accident. Prints the restore command and the irreversible-delete command for the user to run manually.
-- **`skills/forge-setup/SKILL.md` Step 4.6 + Step 6.6** — wizard now asks "install Crucible? (with-seeds / empty / none)" up front (Step 4.6), defers actual install to Step 6.6 (after `CLAUDE.md` / `AGENTS.md` are written so partial failures don't leave a half-configured machine), and surfaces Crucible status in the Step 8 completion report. Same Step 4.5 + 6.5 split pattern as the existing hooks flow.
+- **`skills/forge-setup/SKILL.md` Step 4.6 + Step 6.6** ([#12](https://github.com/eisen0419/forge/pull/12)) — wizard now asks "install Crucible? (with-seeds / empty / none)" up front (Step 4.6), defers actual install to Step 6.6 (after `CLAUDE.md` / `AGENTS.md` are written so partial failures don't leave a half-configured machine), and surfaces Crucible status in the Step 8 completion report. Same Step 4.5 + 6.5 split pattern as the existing hooks flow.
+
+### Changed
+
+- `README.md` + `README_CN.md` Crucible install snippet now points at `scripts/install-crucible.sh` (and the rename-safe uninstall script) instead of the four-command manual `mkdir`/`cp`/`git init` recipe. Also surfaces the new `## Pre-Flight Protocol` section and the wizard's Step 4.6 + 6.6 integration so all three components (storage, hook, prose) are discoverable from the top-level README.
+
+### Notes
+
+- This release closes the **Crucible reverse-contribution wave** started in [0.3.0]. After [0.4.0], a Full-tier user running `forge-setup` once gets the entire system in one go: `CLAUDE.md`/`AGENTS.md` with `## Pre-Flight Protocol` spliced in (PR #11), the `auto-evolve-collector` hook installed (existing Step 4.5), and `~/.claude/crucible/` populated with README/schemas/seeds/git (PR #12 Step 4.6/6.6). The three pieces — prose, hook, store — close the loop.
+- No `[Unreleased]` content is being held back for [0.5.0]; this is a clean cut.
 
 ## [0.3.0] - 2026-05-18
 
