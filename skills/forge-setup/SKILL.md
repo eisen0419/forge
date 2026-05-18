@@ -115,6 +115,43 @@ If user declines → set `HOOKS_CHOICE=none` and continue.
 
 Defer actual installation to Step 6.5 (after files are written, so partial failures don't leave a half-configured machine).
 
+## Step 4.6: Optional Crucible Install (Full tier only)
+
+Skip this step if TIER is Essential.
+
+Crucible is Forge's evolution-asset system. It installs at `~/.claude/crucible/` and gives the agent a place to record recurring errors (`failed-directions/<fp>.yaml`) and validated success flows (`golden-cases/<gc_id>.yaml`). See `templates/crucible/README.md` for the full design.
+
+Pre-Flight Protocol (Section 18) only pays off once Crucible is installed — without the store, the agent's pre-flight grep finds nothing and the protocol degrades to "state extract only".
+
+Ask via AskUserQuestion:
+
+> Install Crucible into `~/.claude/crucible/`? Pairs with the `auto-evolve-collector` hook (Step 4.5). If you installed that hook and skip this step, the hook will create the directory on first error anyway — but without README, schemas, or example yamls.
+>
+> Options:
+> - **with seeds** — install README + schemas + the worked-example pair (`failed-direction` `df53a88d1096` ⇄ `golden-case` `gc_example_001`). Best if you want a populated reference.
+> - **empty** — install README + schemas only, no example data. Best if you prefer a clean slate.
+> - **none** — skip. You can run `scripts/install-crucible.sh` later.
+
+Store answer as `CRUCIBLE_CHOICE` (values: `"with-seeds"`, `"empty"`, or `"none"`).
+
+If `CRUCIBLE_CHOICE` is not `"none"`, confirm before mutating the user's filesystem:
+
+> About to run: `scripts/install-crucible.sh [--with-seeds]`
+>
+> This will:
+> 1. Create `~/.claude/crucible/{failed-directions,golden-cases,schemas}/`
+> 2. Copy `templates/crucible/README.md` and `templates/crucible/schemas/*.yaml`
+> 3. (with-seeds only) Copy the worked-example yamls into the matching subdirs
+> 4. Initialize git in the install dir + first commit (so lessons survive machine moves)
+>
+> Idempotent: README and schemas refresh on every run; user-edited data is never touched.
+>
+> Proceed? (yes / no)
+
+If user declines → set `CRUCIBLE_CHOICE=none` and continue.
+
+Defer actual installation to Step 6.6.
+
 ## Step 5: Generate Instruction File(s)
 
 1. Determine output files based on TARGET:
@@ -202,6 +239,50 @@ If the installer exits non-zero:
 >
 > To uninstall later: `${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-hook.sh <id>`
 
+## Step 6.6: Install Crucible
+
+Skip this step if `CRUCIBLE_CHOICE` from Step 4.6 is `"none"` or unset.
+
+Run the installer via Bash:
+
+```bash
+CRUCIBLE_FLAGS=""
+if [[ "${CRUCIBLE_CHOICE}" == "with-seeds" ]]; then
+  CRUCIBLE_FLAGS="--with-seeds"
+fi
+"${CLAUDE_PLUGIN_ROOT}/scripts/install-crucible.sh" ${CRUCIBLE_FLAGS}
+```
+
+Capture stdout/stderr. The installer prints:
+- `✓ README.md + schemas/ refreshed`
+- `✓ failed-directions/example.yaml seeded` and `✓ golden-cases/gc_example.yaml seeded` (only with `--with-seeds`)
+- `✓ git initialized at ~/.claude/crucible` (unless `--no-git` or git missing)
+- A `Next:` block with the splice + auto-evolve-collector pairing reminder
+
+Report to the user:
+
+> Installed Crucible at `~/.claude/crucible/`:
+> - `README.md` + `schemas/` (always refreshed on rerun)
+> - `failed-directions/example.yaml`, `golden-cases/gc_example.yaml` (only if seeded)
+> - Git initialized — your accumulated lessons can be synced across machines via this repo.
+>
+> The Pre-Flight Protocol section in your generated `CLAUDE.md` / `AGENTS.md` already tells the agent to read this directory before high-risk work. Nothing further needed for the read path.
+>
+> For automatic write-back, install the `auto-evolve-collector` hook (if you didn't pick it in Step 4.5):
+>
+> `${CLAUDE_PLUGIN_ROOT}/scripts/install-hook.sh auto-evolve-collector`
+
+If the installer exits non-zero:
+
+> ⚠ Crucible installation failed. The instruction file(s) were still written successfully.
+>
+> Common causes:
+> - Permission denied on `~/.claude/` → check ownership
+> - `templates/crucible/` missing → re-clone the forge repo, then re-run:
+>   `${CLAUDE_PLUGIN_ROOT}/scripts/install-crucible.sh [--with-seeds]`
+>
+> To uninstall (rename, not delete — preserves user data): `${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-crucible.sh`
+
 ## Step 7: Recommend Enhancements
 
 Print the following (do **NOT** install anything automatically):
@@ -264,6 +345,7 @@ Report success:
 > - Target: [Claude Code / Codex / Both]
 > - Tier: [Essential / Full]
 > - Runtime hooks installed: [`<comma-separated ids>` / none]   ← omit this line if HOOKS_CHOICE was "none"
+> - Crucible: [`installed at ~/.claude/crucible/ (with-seeds | empty)` / none]   ← omit this line if CRUCIBLE_CHOICE was "none"
 >
 > **Next steps:**
 > 1. Review the generated instruction file(s) and adjust any preferences
