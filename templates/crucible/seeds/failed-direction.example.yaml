@@ -1,0 +1,37 @@
+# Example failed-direction · 示例失败方向
+#
+# This is a worked example of the failed-direction schema, taken from a
+# real-world pattern (pushing directly to a protected branch). Use it as a
+# reference when filling in your own; copy it into ~/.claude/crucible/
+# failed-directions/ only if you actually want this as an active entry.
+#
+# Schema reference: ../schemas/failed-direction.schema.yaml
+# Fingerprint computed from: sha1("permission denied|Bash")[:12]
+
+fingerprint: df53a88d1096
+error_kind: permission denied
+tool_name: Bash
+trigger: "Bash tool emits 'permission denied' (commonly: git push to a protected branch)"
+sample_snippet: "Permission for this action has been denied. Reason: Pushing directly to main bypasses pull request review."
+created_at: "<YYYY-MM-DD>"
+status: active
+
+# ─── User-editable below ────────────────────────────────────────────────────
+content: "Pushing straight to a protected branch (main / release) is rejected by the repo's PR policy."
+correct_action: |
+  1. Branch off:  git checkout -b <type>/<short-task-name>
+  2. Push the branch:  git push -u origin <branch>
+  3. Open a PR via gh:  gh pr create --base main --title "..." --body-file <(printf "...")
+  4. Reset local main to origin/main so it never drifts ahead:
+       git branch -f main origin/main && git checkout main
+counterexamples:
+  - "Private solo repos with no PR policy"
+  - "Emergency hotfixes when the user has explicitly waived the policy"
+confidence: medium
+last_verified: "<YYYY-MM-DD>"
+
+# ─── Tooling-managed below — bumped by scripts/crucible-bookkeep.sh hit ─────
+last_retrieved: ""
+retrieval_count: 0
+
+linked_golden_case: gc_example_001

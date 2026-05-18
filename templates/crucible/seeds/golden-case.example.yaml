@@ -1,0 +1,28 @@
+# Example golden-case · 示例黄金案例
+#
+# Companion success flow to seeds/failed-direction.example.yaml.
+# Schema reference: ../schemas/golden-case.schema.yaml
+
+case_id: gc_example_001
+title: "Open a PR instead of pushing to a protected branch"
+trigger: "User asks to push / publish to main and the repo has a branch-protection policy"
+
+correct_flow:
+  - "git checkout -b fix/<short-task-name>"
+  - "Create a commit using the repo's conventions (do NOT pass --no-verify)"
+  - "git push -u origin fix/<short-task-name>"
+  - 'gh pr create --base main --head fix/<short-task-name> --title "..." --body-file <(printf "...")'
+  - "Reset local main to origin/main:  git branch -f main origin/main && git checkout main"
+  - "Wait for review / merge; only then git pull"
+
+verification:
+  - "When push fails, output mentions opening a PR — not force-push"
+  - "PR body contains background, change summary, and verification notes"
+  - "Local main is at origin/main after the flow (no ahead-by-N commits)"
+  - "No --no-verify / --no-edit / --no-gpg-sign bypass flags appeared"
+
+linked_failed_direction: df53a88d1096
+evidence_session: "<your session id or PR number>"
+created_at: "<YYYY-MM-DD>"
+last_verified: "<YYYY-MM-DD>"
+status: active

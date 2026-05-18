@@ -1,0 +1,36 @@
+# Schema: golden-cases/<case_id>.yaml
+#
+# A manually curated success flow that, ideally, prevents one or more known
+# failed-directions from recurring.
+#
+# Naming: case_id MUST be "gc_YYYY_MM_DD_NNN" where NNN is the daily ordinal,
+# e.g. "gc_2026_05_18_001". The id is also the filename stem.
+
+case_id: ""                          # gc_YYYY_MM_DD_NNN, also the filename stem
+title: ""                            # short imperative phrase, e.g. "open a PR instead of pushing to main"
+trigger: ""                          # one-line description of when this flow applies
+
+# Numbered, copy-pastable steps. Each step should be specific enough that grepping
+# for it in a session log would confirm the agent followed it.
+correct_flow:
+  - ""
+
+# Post-conditions you can grep for after the flow runs. Used by retroactive audit
+# (golden-case regression sweep) to confirm the flow was actually executed, not
+# just claimed.
+verification:
+  - ""
+
+# Reverse link to the failed-direction this prevents. Leave empty if the success
+# flow has no corresponding known failure yet — link it once the matching
+# fingerprint appears.
+linked_failed_direction: ""          # 12-char fingerprint
+
+# Free-form pointer back to where this flow was first proven (session id, PR
+# number, ticket id — whatever makes traceability cheap on this machine).
+# Avoid putting personal data here if the crucible directory will be shared.
+evidence_session: ""
+
+created_at: ""                       # YYYY-MM-DD
+last_verified: ""                    # YYYY-MM-DD of the last time the flow was re-validated
+status: active                       # active | deprecated | archived
