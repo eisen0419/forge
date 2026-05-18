@@ -1,7 +1,7 @@
 {
   "name": "forge",
   "owner": { "name": "Eisen", "url": "https://github.com/eisen0419" },
-  "metadata": { "description": "AI-assisted development workflow starter kit and multi-agent router for Claude Code and Codex", "version": "0.3.0" },
+  "metadata": { "description": "AI-assisted development workflow starter kit and multi-agent router for Claude Code and Codex", "version": "0.4.0" },
   "plugins": [{
     "name": "forge",
     "description": "Battle-tested CLAUDE.md and AGENTS.md templates for AI-assisted development. Task routing, CE/GSD/gstack/Waza routing, quality gates, knowledge compounding.",

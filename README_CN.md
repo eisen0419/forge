@@ -176,18 +176,17 @@ Crucible 是一个 opt-in 跨会话学习储存，模板位于 [`templates/cruci
 L2+ 高风险任务（`git push` / 迁移 / 认证 / 模式变更）前 Agent 先读这两个目录，命中 fingerprint 后按 `correct_action` 执行，用 [`scripts/crucible-bookkeep.sh hit <fingerprint>`](./scripts/crucible-bookkeep.sh) 记账。数据可手工填，也可由上面的 `auto-evolve-collector` hook 自动收集。
 
 ```bash
-# 把 Crucible 模板装到 ~/.claude/crucible/（一次性）
-mkdir -p ~/.claude/crucible
-cp -r templates/crucible/{README.md,schemas} ~/.claude/crucible/
-mkdir -p ~/.claude/crucible/{failed-directions,golden-cases}
-cd ~/.claude/crucible && git init && git add . && git commit -m "init crucible"
+# 安装（幂等；重跑会刷新 README + schemas，不动用户数据）
+scripts/install-crucible.sh                  # README + schemas + 空 store + git init
+scripts/install-crucible.sh --with-seeds     # 同时复制示例 yaml
 
-# 可选：把示例 yaml 也放进去看一下格式
-cp templates/crucible/seeds/failed-direction.example.yaml ~/.claude/crucible/failed-directions/example.yaml
-cp templates/crucible/seeds/golden-case.example.yaml ~/.claude/crucible/golden-cases/gc_example.yaml
+# 卸载（rename 不 delete —— 保留用户编辑的 correct_action / confidence 等字段）
+scripts/uninstall-crucible.sh
 ```
 
-然后按 [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) 把 agent-facing prose splice 到你的 `CLAUDE.md` / `AGENTS.md` —— 不 splice 那段，Crucible 目录就只是静态文件没人读。
+Full tier 模板已经 splice 了 [`## Pre-Flight Protocol`](./templates/core/sections/18-pre-flight-protocol.md) 段，告诉 Agent **什么时候**读 Crucible（L3 高风险命令前）和**怎么读**（state extract → grep failed-directions → 命中后按 correct_action 执行并 bookkeep → 未命中且流程成功则写 golden case）。不 splice 这段，Crucible 目录就静态躺着不被读 —— 完整 wiring 见 [`docs/workflows/crucible.md`](./docs/workflows/crucible.md)。
+
+`forge-setup` Full tier 在 Step 4.6 询问 Crucible 安装、Step 6.6 执行，与 Step 4.5 的 `auto-evolve-collector` hook 配套。
 
 | 文件 | 作用 |
 |------|------|
@@ -195,7 +194,9 @@ cp templates/crucible/seeds/golden-case.example.yaml ~/.claude/crucible/golden-c
 | [`templates/crucible/schemas/`](./templates/crucible/schemas/) | 两种记录的权威 yaml schema，按 writer 注释。 |
 | [`templates/crucible/seeds/`](./templates/crucible/seeds/) | 示例对：`df53a88d1096` failed direction ⇄ `gc_example_001` golden case。 |
 | [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh) | 4 子命令：`hit` / `list` / `validate` / `gen-fingerprint`。 |
-| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | 运行时指南：L0-L3 任务路由、pre-flight 协议、写回节奏、用于 `CLAUDE.md` / `AGENTS.md` 的 prose。 |
+| [`scripts/install-crucible.sh`](./scripts/install-crucible.sh) / [`uninstall-crucible.sh`](./scripts/uninstall-crucible.sh) | 向导可复用的安装 + rename 式安全卸载。 |
+| [`templates/core/sections/18-pre-flight-protocol.md`](./templates/core/sections/18-pre-flight-protocol.md) | Agent 侧 prose 的权威源；Full tier 模板已经 splice 好。 |
+| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | 运行时指南：L0-L3 任务路由、pre-flight 协议、写回节奏。 |
 
 ## 工作流增强
 
