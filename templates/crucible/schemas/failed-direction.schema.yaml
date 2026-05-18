@@ -1,0 +1,43 @@
+# Schema: failed-directions/<fingerprint>.yaml
+#
+# Authoritative reference for every field used in a failed-direction record.
+# Each entry has TWO files on disk:
+#   <fingerprint>.yaml             — this schema (static metadata + user-editable)
+#   <fingerprint>.occurrences.jsonl — append-only event log (one JSON object per line)
+#
+# Fingerprint formula (must stay stable across all tooling):
+#   sha1(f"{error_kind[:30].lower()}|{tool_name or 'unknown'}").hexdigest()[:12]
+#
+# Fields are grouped by writer:
+#   [hook]   — auto-populated by the auto-evolve-collector hook on first sight
+#   [user]   — left empty by the hook; you fill in once verified
+#   [tooling] — bumped by scripts/crucible-bookkeep.sh on retrieval hits
+
+# ─── [hook] machine-written, do not edit by hand ────────────────────────────
+fingerprint: ""              # 12-char sha1, also the filename stem
+error_kind: ""               # canonical kind, e.g. "permission denied" / "timeout" / "error"
+tool_name: ""                # the Claude Code tool that emitted the failure, e.g. "Bash" / "Edit"
+trigger: ""                  # one-line human-readable description
+sample_snippet: ""           # first observed snippet, truncated to ~200 chars
+created_at: ""               # ISO date, e.g. "2026-05-18"
+status: active               # active | deprecated | conflict | archived | catchall
+
+# ─── [user] fill these once you've verified the failure pattern ─────────────
+content: ""                  # one-sentence summary of what fails and why
+correct_action: ""           # the right way to handle this trigger (multi-line OK)
+counterexamples: []          # situations where the correct_action does NOT apply
+confidence: low              # low (hook draft) | medium (you've seen it work) | high (verified ≥ 3 times)
+last_verified: ""            # YYYY-MM-DD of your last confirmation
+
+# ─── [tooling] bumped by crucible-bookkeep.sh; do not edit by hand ──────────
+last_retrieved: ""           # YYYY-MM-DD when pre-flight last matched this fingerprint
+retrieval_count: 0           # cumulative pre-flight matches
+
+# ─── [user] cross-reference ─────────────────────────────────────────────────
+linked_golden_case: ""       # gc_YYYY_MM_DD_NNN of the golden case that fixes this, if any
+
+# ─── [user, catchall only] when status == catchall ──────────────────────────
+# Used only when this is a catchall bucket (kind="error" + a single tool_name).
+# Maintain a hand-grouped list of sub-patterns observed in occurrences.jsonl
+# so the next triage pass can promote them to their own fingerprints.
+catchall_observed_subtypes: []
