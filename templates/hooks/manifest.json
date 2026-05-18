@@ -17,6 +17,23 @@
       "language": "adaptive",
       "scope": "global",
       "version": "1.1.0"
+    },
+    {
+      "id": "auto-evolve-collector",
+      "name": {
+        "en": "Auto Evolve Collector",
+        "zh": "错误自动进化收集器"
+      },
+      "description": {
+        "en": "On every Stop event, scans the session jsonl for tool errors and user corrections, then persists them to (1) a daily raw jsonl, (2) Crucible failed-directions yamls + sidecar occurrences.jsonl, and (3) an optional Obsidian digest. Fingerprint formula matches scripts/crucible-bookkeep.sh and templates/crucible/schemas/. No LLM in path; budget < 5s; failure never blocks session end.",
+        "zh": "每次 Stop 事件扫描 session jsonl，提取工具错误和用户纠正信号，写入三处：(1) 每日原始 jsonl、(2) Crucible failed-directions yaml + sidecar occurrences.jsonl、(3) 可选 Obsidian 摘要。fingerprint 公式与 scripts/crucible-bookkeep.sh 及 templates/crucible/schemas/ 一致。全程无 LLM；预算 < 5s；失败永不阻塞会话结束。"
+      },
+      "event": "Stop",
+      "marker": "forge-auto-evolve-collector",
+      "script": "auto-evolve-collector/hook.sh",
+      "language": "en",
+      "scope": "global",
+      "version": "1.0.0"
     }
   ]
 }
