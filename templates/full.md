@@ -62,6 +62,17 @@ Before changing files, ask:
 
 Ask at most one key question for lightweight work. If a safe assumption is available, state it and proceed.
 
+## Pre-Flight Protocol
+
+Before `git push`, `git reset --hard`, `rm -rf`, database migrations, auth-related code, payment-related code, schema or lockfile changes, or force-push, do this **first**:
+
+1. **State the plan** in one paragraph: `user_goal`, `constraints`, `known_facts`, `unknowns`, `risk_flags`, `success_metric`.
+2. **Retrieve from Crucible.** `ls ~/.claude/crucible/failed-directions/` and grep the yamls for the relevant risk keyword.
+3. **On a hit** — read the matched yaml's `correct_action` and follow it. Run `scripts/crucible-bookkeep.sh hit <fingerprint>` to bump bookkeeping.
+4. **On a miss** — proceed; if the success path is worth canonizing, write a new `~/.claude/crucible/golden-cases/gc_YYYY_MM_DD_NNN.yaml` and reverse-link it.
+
+Never act on a high-risk command until step 2 has run. If Crucible is not installed, step 2 finds nothing — that is OK; still do step 1. See `docs/workflows/crucible.md`.
+
 ## Multi-Agent Router
 
 Use Forge as the discipline layer, then route to the strongest installed workflow.
