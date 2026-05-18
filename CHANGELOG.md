@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-18
+
+### Fixed
+
+- **Template header `{{VARIABLES}}` no longer eaten by the setup wizard** ([#2](https://github.com/eisen0419/forge/pull/2), merged in [`419312a`](https://github.com/eisen0419/forge/commit/419312a)) — the literal string `{{VARIABLES}}` in the first comment block of `templates/full.md`, `templates/essential.md`, `templates/targets/codex/full.md`, and `templates/targets/codex/essential.md` was being matched by `forge-setup` Step 5's `grep '{{'` placeholder-residue scan and replaced with the empty string, so users' generated `CLAUDE.md` / `AGENTS.md` line 3 read "Replace all  with your actual values." (note the double space). The header now uses `[VARIABLES]` instead — bracket form is clearly not a Mustache token, so the wizard leaves it alone while the hint remains readable. Zero functional change; four 1-character template edits.
+
 ## [0.4.0] - 2026-05-18
 
 ### Added
