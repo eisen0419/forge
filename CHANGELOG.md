@@ -17,10 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/crucible-bookkeep.sh` — maintenance helper with four subcommands: `hit <fingerprint>` (bump retrieval_count + last_retrieved), `list` (tabular stats), `validate` (required-field completeness check), `gen-fingerprint <kind> <tool>` (canonical sha1 formula, mirrors the planned auto-evolve-collector hook).
   - `docs/workflows/crucible.md` — runtime usage guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`, maintenance rhythm, catchall protocol, honest failure modes.
 
+- **`auto-evolve-collector` runtime hook** — Stop-event hook that scans each session's jsonl on session end and persists tool errors and user corrections to three sinks: a daily raw jsonl (`$EVOLVE_COLLECT_DIR`, default `~/.claude/auto-lessons/`), Crucible failed-directions yamls + sidecar occurrences.jsonl (`$EVOLVE_CRUCIBLE_FD_DIR`, default `~/.claude/crucible/failed-directions/`), and an **opt-in** Obsidian digest (`$EVOLVE_OBSIDIAN_DIR`, default empty / disabled).
+  - `templates/hooks/auto-evolve-collector/hook.sh` — bash wrapper + inline Python; pure machine work, no LLM, < 5 s budget, failure never blocks session end.
+  - `templates/hooks/auto-evolve-collector/README.md` — sink table, env overrides, install/uninstall, skip conditions, what it does NOT do.
+  - `templates/hooks/manifest.json` — registers the hook under `Stop` event with `marker: forge-auto-evolve-collector` and `language: en` (jsonl/yaml outputs are machine-readable; correction-keyword scan remains bilingual: `不对 / 错了 / 别 / 不要 / wrong / no, don't / stop`).
+  - `templates/hooks/README.md` — catalog row added.
+
 ### Notes
 
-- Crucible is **opt-in and standalone** — no template, hook, or script in the existing Forge surface depends on it. The schema is the contract; the auto-evolve-collector hook that auto-populates `failed-directions/` will land in a follow-up PR.
-- Fingerprint formula is `sha1(f"{error_kind[:30].lower()}|{tool_name or 'unknown'}").hexdigest()[:12]` and is the same in `scripts/crucible-bookkeep.sh gen-fingerprint` as it will be in the future hook — verified end-to-end in a sandbox.
+- Crucible is **opt-in and standalone** — no template, hook, or script in the existing Forge surface depends on it without explicit opt-in. The auto-evolve-collector hook is also opt-in (install via `scripts/install-hook.sh auto-evolve-collector`); installing it does not turn on the Obsidian digest unless `EVOLVE_OBSIDIAN_DIR` is also set.
+- **Fingerprint formula is the contract** across three artifacts: `templates/hooks/auto-evolve-collector/hook.sh`, `scripts/crucible-bookkeep.sh gen-fingerprint`, and `templates/crucible/schemas/failed-direction.schema.yaml`. End-to-end sandbox test verifies the hook's output yaml passes `crucible-bookkeep.sh validate` and that all three artifacts compute `df53a88d1096` for `(permission denied, Bash)`.
 
 ## [0.2.0] - 2026-05-17
 

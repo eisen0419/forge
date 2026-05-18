@@ -24,6 +24,7 @@
 | Hook ID | Event | Language | Description |
 |---------|-------|----------|-------------|
 | [`project-context`](./project-context/) | `SessionStart` | adaptive | Forces the agent to emit "Project / Current stage" line before every first reply. 4-step fallback chain. |
+| [`auto-evolve-collector`](./auto-evolve-collector/) | `Stop` | en | Scans the session jsonl on session end; persists tool errors and user corrections to a daily jsonl, the Crucible failed-directions store, and an optional Obsidian digest. Sibling to `templates/crucible/` and `scripts/crucible-bookkeep.sh`. |
 
 The `Language` column means:
 
