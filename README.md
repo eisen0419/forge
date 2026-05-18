@@ -160,8 +160,42 @@ scripts/uninstall-hook.sh project-context
 | Hook ID | Event | Language | What it does |
 |---------|-------|----------|--------------|
 | [`project-context`](./templates/hooks/project-context/) | `SessionStart` | Adaptive (CJK density scan) | Before every first reply, makes the agent emit one line: `Project: <X>. Current stage: <Y>.` using a 4-step fallback chain (README → manifest description → `tasks/todo.md` → recent commits). Override language with `FORGE_HOOK_LANG=zh|en`. |
+| [`auto-evolve-collector`](./templates/hooks/auto-evolve-collector/) | `Stop` | English (jsonl/yaml outputs are machine-readable; bilingual correction-keyword scan internally) | On session end, scans the session jsonl for tool errors and user corrections; persists them to a daily raw jsonl, the Crucible failed-directions store, and an **opt-in** Obsidian digest. Sibling to [`templates/crucible/`](./templates/crucible/) and [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh). |
 
 The `forge-setup` wizard offers optional hook installation at Step 4.5. See [`templates/hooks/README.md`](./templates/hooks/README.md) for the manifest schema and the three-step recipe for adding your own hook.
+
+## Crucible · Evolution Asset System
+
+> Forge shapes workflows outward. Crucible refines failures inward.
+
+Crucible is an opt-in cross-session learning store, templated at [`templates/crucible/`](./templates/crucible/) and installed at `~/.claude/crucible/`. Two co-located stores let the agent learn from its own failures and successes between sessions:
+
+- `failed-directions/<fingerprint>.yaml` — every recurring error pattern, keyed by a stable 12-char sha1 of `(error_kind, tool_name)`.
+- `golden-cases/<gc_id>.yaml` — manually curated success flows, each linked back to the failed direction it prevents.
+
+For L2+ high-risk work (`git push`, migrations, auth, schema changes) the agent reads these before acting, follows the matching `correct_action`, and bumps bookkeeping via [`scripts/crucible-bookkeep.sh hit <fingerprint>`](./scripts/crucible-bookkeep.sh). Population is either manual or automatic via the `auto-evolve-collector` hook (above).
+
+```bash
+# Stage Crucible into ~/.claude/crucible/ (one-time)
+mkdir -p ~/.claude/crucible
+cp -r templates/crucible/{README.md,schemas} ~/.claude/crucible/
+mkdir -p ~/.claude/crucible/{failed-directions,golden-cases}
+cd ~/.claude/crucible && git init && git add . && git commit -m "init crucible"
+
+# (Optional) seed with the worked example
+cp templates/crucible/seeds/failed-direction.example.yaml ~/.claude/crucible/failed-directions/example.yaml
+cp templates/crucible/seeds/golden-case.example.yaml ~/.claude/crucible/golden-cases/gc_example.yaml
+```
+
+Then add the agent-facing prose to your `CLAUDE.md` / `AGENTS.md` per [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) — without that splice, the directory just sits there.
+
+| File | Purpose |
+|------|---------|
+| [`templates/crucible/README.md`](./templates/crucible/README.md) | Design entry point, data flow, install, cost budget, catchall protocol. Bilingual EN/ZH. |
+| [`templates/crucible/schemas/`](./templates/crucible/schemas/) | Authoritative yaml schemas for both record types, annotated by writer. |
+| [`templates/crucible/seeds/`](./templates/crucible/seeds/) | Worked example: `df53a88d1096` failed direction ⇄ `gc_example_001` golden case. |
+| [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh) | Four subcommands: `hit`, `list`, `validate`, `gen-fingerprint`. |
+| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | Runtime guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`. |
 
 ## Workflow Add-ons
 

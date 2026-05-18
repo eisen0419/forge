@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-18
+
 ### Added
 
-- **Crucible evolution-asset system** — opt-in cross-session learning store under `templates/crucible/`.
+- **Crucible evolution-asset system** ([#6](https://github.com/eisen0419/forge/pull/6), merged in [`3109e16`](https://github.com/eisen0419/forge/commit/3109e16)) — opt-in cross-session learning store under `templates/crucible/`.
   - `templates/crucible/README.md` — design, data flow, install instructions, cost budget.
   - `templates/crucible/schemas/{failed-direction,golden-case}.schema.yaml` — authoritative field reference for both record types, with comments distinguishing hook-written / user-written / tooling-bumped fields.
   - `templates/crucible/seeds/{failed-direction,golden-case}.example.yaml` — schema-correct worked example (`push to protected branch → open a PR`), reverse-linked pair.
@@ -17,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `scripts/crucible-bookkeep.sh` — maintenance helper with four subcommands: `hit <fingerprint>` (bump retrieval_count + last_retrieved), `list` (tabular stats), `validate` (required-field completeness check), `gen-fingerprint <kind> <tool>` (canonical sha1 formula, mirrors the planned auto-evolve-collector hook).
   - `docs/workflows/crucible.md` — runtime usage guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`, maintenance rhythm, catchall protocol, honest failure modes.
 
-- **`auto-evolve-collector` runtime hook** — Stop-event hook that scans each session's jsonl on session end and persists tool errors and user corrections to three sinks: a daily raw jsonl (`$EVOLVE_COLLECT_DIR`, default `~/.claude/auto-lessons/`), Crucible failed-directions yamls + sidecar occurrences.jsonl (`$EVOLVE_CRUCIBLE_FD_DIR`, default `~/.claude/crucible/failed-directions/`), and an **opt-in** Obsidian digest (`$EVOLVE_OBSIDIAN_DIR`, default empty / disabled).
+- **`auto-evolve-collector` runtime hook** ([#8](https://github.com/eisen0419/forge/pull/8), merged in [`55fb6ba`](https://github.com/eisen0419/forge/commit/55fb6ba)) — Stop-event hook that scans each session's jsonl on session end and persists tool errors and user corrections to three sinks: a daily raw jsonl (`$EVOLVE_COLLECT_DIR`, default `~/.claude/auto-lessons/`), Crucible failed-directions yamls + sidecar occurrences.jsonl (`$EVOLVE_CRUCIBLE_FD_DIR`, default `~/.claude/crucible/failed-directions/`), and an **opt-in** Obsidian digest (`$EVOLVE_OBSIDIAN_DIR`, default empty / disabled).
   - `templates/hooks/auto-evolve-collector/hook.sh` — bash wrapper + inline Python; pure machine work, no LLM, < 5 s budget, failure never blocks session end.
   - `templates/hooks/auto-evolve-collector/README.md` — sink table, env overrides, install/uninstall, skip conditions, what it does NOT do.
   - `templates/hooks/manifest.json` — registers the hook under `Stop` event with `marker: forge-auto-evolve-collector` and `language: en` (jsonl/yaml outputs are machine-readable; correction-keyword scan remains bilingual: `不对 / 错了 / 别 / 不要 / wrong / no, don't / stop`).
@@ -27,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Crucible is **opt-in and standalone** — no template, hook, or script in the existing Forge surface depends on it without explicit opt-in. The auto-evolve-collector hook is also opt-in (install via `scripts/install-hook.sh auto-evolve-collector`); installing it does not turn on the Obsidian digest unless `EVOLVE_OBSIDIAN_DIR` is also set.
 - **Fingerprint formula is the contract** across three artifacts: `templates/hooks/auto-evolve-collector/hook.sh`, `scripts/crucible-bookkeep.sh gen-fingerprint`, and `templates/crucible/schemas/failed-direction.schema.yaml`. End-to-end sandbox test verifies the hook's output yaml passes `crucible-bookkeep.sh validate` and that all three artifacts compute `df53a88d1096` for `(permission denied, Bash)`.
+
+### Changed
+
+- CHANGELOG entries for `[0.2.0]` now carry inline links to the originating PRs and merge commits ([#5](https://github.com/eisen0419/forge/pull/5), merged in [`a48e787`](https://github.com/eisen0419/forge/commit/a48e787)) — same convention now applied to this `[0.3.0]` release.
+- `templates/crucible/README.md` and `docs/workflows/crucible.md` no longer describe the `auto-evolve-collector` hook as "planned, separate PR" — the hook landed in this same release. `templates/crucible/schemas/failed-direction.schema.yaml` now documents the implicit ASCII-only contract on `error_kind` that keeps the fingerprint formula identical between the Python hook and the bash bookkeep script ([#9](https://github.com/eisen0419/forge/pull/9), merged in [`5a90781`](https://github.com/eisen0419/forge/commit/5a90781)).
 
 ## [0.2.0] - 2026-05-17
 

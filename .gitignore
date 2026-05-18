@@ -5,3 +5,6 @@ __pycache__/
 
 # Personal todos — not for open source
 tasks/
+
+# Claude Code session-local runtime state — not for open source
+.claude/
