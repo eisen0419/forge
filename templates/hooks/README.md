@@ -25,6 +25,7 @@
 |---------|-------|----------|-------------|
 | [`project-context`](./project-context/) | `SessionStart` | adaptive | Forces the agent to emit "Project / Current stage" line before every first reply. 4-step fallback chain. |
 | [`auto-evolve-collector`](./auto-evolve-collector/) | `Stop` | en | Scans the session jsonl on session end; persists tool errors and user corrections to a daily jsonl, the Crucible failed-directions store, and an optional Obsidian digest. Sibling to `templates/crucible/` and `scripts/crucible-bookkeep.sh`. |
+| [`crucible-preflight`](./crucible-preflight/) | `PreToolUse` (matcher: `Bash`) | en | Read-side complement to `auto-evolve-collector`. Intercepts high-risk Bash commands BEFORE execution; if a `failed-directions/<fp>.yaml` matches (high-risk regex + ≥ 2 keyword overlap), denies the call and returns the matching `correct_action` to the agent. Anti-false-positive design; opt-out per fingerprint via `~/.claude/crucible/.acks`. Surface log at `~/.claude/crucible/surface_log.jsonl`. |
 
 The `Language` column means:
 
@@ -80,6 +81,7 @@ Uninstaller reverses both the script file and the `settings.json` registration, 
       "name":        { "en": "...", "zh": "..." },
       "description": { "en": "...", "zh": "..." },
       "event": "SessionStart",            // any Claude Code hook event
+      "matcher": "Bash",                  // OPTIONAL — required only for PreToolUse / PostToolUse (which tool to match)
       "marker": "forge-project-context",  // becomes ~/.claude/hooks/<marker>.sh and dedup key
       "script": "project-context/hook.sh",// path relative to templates/hooks/
       "language": "adaptive",             // "adaptive" | "en" | "zh" — informational only
@@ -90,6 +92,7 @@ Uninstaller reverses both the script file and the `settings.json` registration, 
 }
 ```
 
+> **`matcher` field.** Optional. Required for `PreToolUse` and `PostToolUse` events (those events need to know which tool the hook applies to, e.g. `"Bash"`). Omitted for `SessionStart` / `Stop` / `SessionEnd` / etc.
 > **Migration from 1.0 → 1.1.** Replaced `variants` / `default_variant` (install-time choice) with a single `script` field + adaptive runtime detection inside the hook itself. The `language` field is informational — used only by listings, not by the installer.
 
 ---

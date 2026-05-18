@@ -19,6 +19,24 @@
       "version": "1.1.0"
     },
     {
+      "id": "crucible-preflight",
+      "name": {
+        "en": "Crucible Pre-Flight",
+        "zh": "Crucible 飞行前拦截"
+      },
+      "description": {
+        "en": "PreToolUse hook (matcher=Bash). Intercepts high-risk Bash commands BEFORE execution, checks ~/.claude/crucible/failed-directions/ for a matching prior failure, and denies the command with the matching fingerprint's correct_action when found. Closes the read-side gap left by the auto-evolve-collector Stop hook (which is write-only). Anti-false-positive: requires both a high-risk command regex match AND >=2 keyword overlap between the command and the yaml fields. Acknowledgement bypass via ~/.claude/crucible/.acks. Surface log at ~/.claude/crucible/surface_log.jsonl (audit trail, independent of self-reported retrieval_count).",
+        "zh": "PreToolUse hook（matcher=Bash）。在高风险 Bash 命令执行**前**拦截，查 ~/.claude/crucible/failed-directions/ 是否有命中的历史失败模式，命中则 deny 并在 permissionDecisionReason 中给出对应 correct_action。补齐 auto-evolve-collector Stop hook 留下的读取端空缺（后者只写不读）。防假阳性：需同时满足高风险命令正则匹配 + 命令与 yaml 字段至少 2 个关键词重叠。通过 ~/.claude/crucible/.acks 可对特定 fingerprint 豁免。surface_log.jsonl 提供机器观测的审计 trail，与 self-reported retrieval_count 解耦。"
+      },
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "marker": "forge-crucible-preflight",
+      "script": "crucible-preflight/hook.sh",
+      "language": "en",
+      "scope": "global",
+      "version": "1.0.0"
+    },
+    {
       "id": "auto-evolve-collector",
       "name": {
         "en": "Auto Evolve Collector",
