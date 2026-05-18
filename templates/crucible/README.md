@@ -167,7 +167,7 @@ The agent is expected to run `hit` itself whenever pre-flight retrieval matches 
 
 ## Relationship to other parts of Forge · 与 Forge 其它部分的关系
 
-- **`templates/hooks/auto-evolve-collector/`** *(planned, separate PR)* auto-populates `failed-directions/`. Without it, you can still populate by hand or by other tooling — the schema is the contract.
+- **`templates/hooks/auto-evolve-collector/`** auto-populates `failed-directions/` on every Claude Code `Stop` event. Without installing it, you can still populate by hand or by other tooling — the schema is the contract.
 - **`templates/full.md` / `templates/core/sections/`** — the agent-facing prose that tells the agent **when** to read Crucible (pre-flight at L2+, etc.). See `docs/workflows/crucible.md` for the section to splice in.
 - **`templates/hooks/project-context/`** — already shipped; reminds the agent about project state at every session start. Crucible is the *outcome* memory; project-context is the *current-task* memory.
 

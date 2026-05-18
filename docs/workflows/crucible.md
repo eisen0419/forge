@@ -65,10 +65,10 @@ command:
 
 Two writers, two cadences.
 
-**Automatic (hook-driven).** If you install the future `auto-evolve-collector`
-hook (planned, separate PR), every session's errors flow into
-`failed-directions/<fp>.{yaml,occurrences.jsonl}` automatically — yaml first
-sighting, jsonl per recurrence.
+**Automatic (hook-driven).** If you install the `auto-evolve-collector` hook
+(`scripts/install-hook.sh auto-evolve-collector`), every session's errors flow
+into `failed-directions/<fp>.{yaml,occurrences.jsonl}` automatically — yaml on
+first sighting, jsonl per recurrence.
 
 **Manual (agent-driven golden cases).** When the agent and user finish a flow
 worth keeping, the agent should:
