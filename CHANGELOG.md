@@ -7,25 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Crucible evolution-asset system** — opt-in cross-session learning store under `templates/crucible/`.
+  - `templates/crucible/README.md` — design, data flow, install instructions, cost budget.
+  - `templates/crucible/schemas/{failed-direction,golden-case}.schema.yaml` — authoritative field reference for both record types, with comments distinguishing hook-written / user-written / tooling-bumped fields.
+  - `templates/crucible/seeds/{failed-direction,golden-case}.example.yaml` — schema-correct worked example (`push to protected branch → open a PR`), reverse-linked pair.
+  - `templates/crucible/seeds/README.md` — what the seeds are and how to use them.
+  - `scripts/crucible-bookkeep.sh` — maintenance helper with four subcommands: `hit <fingerprint>` (bump retrieval_count + last_retrieved), `list` (tabular stats), `validate` (required-field completeness check), `gen-fingerprint <kind> <tool>` (canonical sha1 formula, mirrors the planned auto-evolve-collector hook).
+  - `docs/workflows/crucible.md` — runtime usage guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`, maintenance rhythm, catchall protocol, honest failure modes.
+
+- **`auto-evolve-collector` runtime hook** — Stop-event hook that scans each session's jsonl on session end and persists tool errors and user corrections to three sinks: a daily raw jsonl (`$EVOLVE_COLLECT_DIR`, default `~/.claude/auto-lessons/`), Crucible failed-directions yamls + sidecar occurrences.jsonl (`$EVOLVE_CRUCIBLE_FD_DIR`, default `~/.claude/crucible/failed-directions/`), and an **opt-in** Obsidian digest (`$EVOLVE_OBSIDIAN_DIR`, default empty / disabled).
+  - `templates/hooks/auto-evolve-collector/hook.sh` — bash wrapper + inline Python; pure machine work, no LLM, < 5 s budget, failure never blocks session end.
+  - `templates/hooks/auto-evolve-collector/README.md` — sink table, env overrides, install/uninstall, skip conditions, what it does NOT do.
+  - `templates/hooks/manifest.json` — registers the hook under `Stop` event with `marker: forge-auto-evolve-collector` and `language: en` (jsonl/yaml outputs are machine-readable; correction-keyword scan remains bilingual: `不对 / 错了 / 别 / 不要 / wrong / no, don't / stop`).
+  - `templates/hooks/README.md` — catalog row added.
+
+### Notes
+
+- Crucible is **opt-in and standalone** — no template, hook, or script in the existing Forge surface depends on it without explicit opt-in. The auto-evolve-collector hook is also opt-in (install via `scripts/install-hook.sh auto-evolve-collector`); installing it does not turn on the Obsidian digest unless `EVOLVE_OBSIDIAN_DIR` is also set.
+- **Fingerprint formula is the contract** across three artifacts: `templates/hooks/auto-evolve-collector/hook.sh`, `scripts/crucible-bookkeep.sh gen-fingerprint`, and `templates/crucible/schemas/failed-direction.schema.yaml`. End-to-end sandbox test verifies the hook's output yaml passes `crucible-bookkeep.sh validate` and that all three artifacts compute `df53a88d1096` for `(permission denied, Bash)`.
+
 ## [0.2.0] - 2026-05-17
+
+Released as commit [`6aec147`](https://github.com/eisen0419/forge/commit/6aec147).
 
 ### Added
 
-- **Runtime hooks infrastructure** — manifest-driven hook system that installs Claude Code lifecycle hooks globally into `~/.claude/hooks/` and registers them in `~/.claude/settings.json`.
+- **Runtime hooks infrastructure** ([#3](https://github.com/eisen0419/forge/pull/3), merged in [`e602c0d`](https://github.com/eisen0419/forge/commit/e602c0d)) — manifest-driven hook system that installs Claude Code lifecycle hooks globally into `~/.claude/hooks/` and registers them in `~/.claude/settings.json`.
   - `templates/hooks/manifest.json` (schema v1.1) — single source of truth.
   - `templates/hooks/project-context/hook.sh` — first hook. Forces the agent to emit `Project: <X>. Current stage: <Y>.` at the top of every first reply. Adaptive zh/en at runtime via CJK density scan of `CLAUDE.md`/`AGENTS.md`/`~/.claude/rules/*.md`; override with `FORGE_HOOK_LANG=zh|en`.
   - `scripts/install-hook.sh` / `scripts/uninstall-hook.sh` — jq-driven, backs up `settings.json`, deduplicates, verifies. Uninstall leaves other hooks/events/fields untouched.
   - `templates/hooks/README.md` — manifest schema + "how to add a new hook" guide.
-- **Coding Standards section** (`templates/core/sections/17-coding-standards.md`) with an explicit threshold-exception protocol: soft targets (function ≤ 50 lines, file ≤ 300, nesting ≤ 3, complexity ≤ 10) plus a 3-step escape hatch so agents don't mechanically fragment state machines, dispatch tables, or fixtures. Mirrored into `templates/full.md`, `templates/essential.md`, `templates/targets/codex/full.md`, `templates/targets/codex/essential.md`.
-- **Self-Improvement Loop** — `tasks/lessons.md` persistence pattern. When the user corrects the agent, append correction + reason to `tasks/lessons.md`; re-read at every session start; graduate recurring lessons to `docs/solutions/` or `CLAUDE.md`. Added to `templates/core/sections/13-knowledge-compounding.md`, plus the `Hooks And Memory` section in both full templates and the `Task Management` section in both essential templates.
+- **Coding Standards section** ([#4](https://github.com/eisen0419/forge/pull/4), merged in [`882153d`](https://github.com/eisen0419/forge/commit/882153d)) — `templates/core/sections/17-coding-standards.md` with an explicit threshold-exception protocol: soft targets (function ≤ 50 lines, file ≤ 300, nesting ≤ 3, complexity ≤ 10) plus a 3-step escape hatch so agents don't mechanically fragment state machines, dispatch tables, or fixtures. Mirrored into `templates/full.md`, `templates/essential.md`, `templates/targets/codex/full.md`, `templates/targets/codex/essential.md`.
+- **Self-Improvement Loop** ([#4](https://github.com/eisen0419/forge/pull/4), merged in [`882153d`](https://github.com/eisen0419/forge/commit/882153d)) — `tasks/lessons.md` persistence pattern. When the user corrects the agent, append correction + reason to `tasks/lessons.md`; re-read at every session start; graduate recurring lessons to `docs/solutions/` or `CLAUDE.md`. Added to `templates/core/sections/13-knowledge-compounding.md`, plus the `Hooks And Memory` section in both full templates and the `Task Management` section in both essential templates.
 
 ### Changed
 
-- `skills/forge-setup/SKILL.md` — added Step 4.5 (optional hook install during wizard) and Step 6.5 (defers actual install until after `CLAUDE.md`/`AGENTS.md` are written, so partial failure never leaves a half-configured machine).
+- `skills/forge-setup/SKILL.md` ([#3](https://github.com/eisen0419/forge/pull/3)) — added Step 4.5 (optional hook install during wizard) and Step 6.5 (defers actual install until after `CLAUDE.md`/`AGENTS.md` are written, so partial failure never leaves a half-configured machine).
 
 ### Notes
 
-- Both PRs (#3 hooks infrastructure, #4 rules reverse-contribution) merged via merge commits on 2026-05-17.
+- Both PRs ([#3](https://github.com/eisen0419/forge/pull/3) hooks infrastructure, [#4](https://github.com/eisen0419/forge/pull/4) rules reverse-contribution) merged via merge commits on 2026-05-17.
 - All template line budgets respected: `full.md` 175/200, `essential.md` 163/180, `codex/full.md` 175/200, `codex/essential.md` 173/180.
 - `node scripts/test-forge-routing.mjs` passes with no regression.
 
