@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`crucible-preflight` runtime hook** — `PreToolUse` hook (matcher: `Bash`) that closes the read-side gap left by `auto-evolve-collector`. On every Bash tool call, the hook:
+  - filters by a high-risk command regex (`git push`, `git reset --hard`, `rm -rf`, `chmod -R`, `chown -R`, `terraform destroy`, `kubectl delete`, SQL `DROP TABLE` patterns)
+  - greps `~/.claude/crucible/failed-directions/*.yaml` for a yaml whose `trigger` / `sample_snippet` / `content` / `correct_action` fields share ≥ 2 keywords with the command
+  - on hit, returns `permissionDecision: deny` + the matching `correct_action` as `permissionDecisionReason` so the agent sees the proven recovery path **before** the destructive command executes
+  - appends a JSON line to `~/.claude/crucible/surface_log.jsonl` per deny (machine-observed audit trail, independent of self-reported `retrieval_count`)
+  - supports per-fingerprint opt-out via `~/.claude/crucible/.acks`
+  - `templates/hooks/crucible-preflight/{hook.sh, README.md}` — 200-line bash + inline Python, design doc, install/uninstall, tuning knobs.
+  - `templates/hooks/manifest.json` — new entry with `event: PreToolUse` + `matcher: Bash` (manifest schema 1.1 already supports both fields).
+- **Motivation**: 3-day field data on the developer's own Crucible install showed only 3 of 11 fingerprints had `retrieval_count > 0` — the honor-system reader (prose in `~/CLAUDE.md` telling the agent to grep before L3) was not reliable. Independent Codex review confirmed (a) honor-system retrieval is the documented failure mode of the v0.3.0 design, (b) the original "echo to stderr" PreToolUse design would not have worked because `additionalContext` is shown alongside the tool result, too late for destructive commands. This hook implements the correct mechanism: synchronous `deny` with `permissionDecisionReason`, which is the only PreToolUse path Claude Code shows to the agent before the command runs.
+- **Anti-false-positive design**: fingerprint coarseness (`sha1(error_kind|tool_name)[:12]`) means a single fp can collapse unrelated failures under buckets like `permission denied|Bash`. The ≥ 2 keyword overlap rule (with 1-2 char tokens filtered out) prevents a `chmod` failure pattern from denying `git push` commands and vice versa. Sandboxed across 9 test cases including the explicit anti-FP scenario (`git push` does NOT match the `chmod` fingerprint).
+
+### Changed
+
+- **`scripts/install-hook.sh`** now reads the optional `matcher` field from `manifest.json` and includes it in the `settings.json` hook registration when present. Required for `PreToolUse` / `PostToolUse` hooks (which scope by tool name); ignored for `SessionStart` / `Stop` / `SessionEnd`. Backwards-compatible: hooks without `matcher` install unchanged.
+- **`scripts/install-hook.sh`** verification step no longer warns "empty output" when installing `PreToolUse` / `PostToolUse` hooks. Those hooks expect a JSON stdin payload; the empty-stdin smoke test should hit the "allow" path (empty stdout, exit 0) by design. The installer now reports `verify: PreToolUse hook (empty-stdin smoke test → allow path, OK)` for these event types.
+- **`templates/hooks/README.md`** manifest schema example annotates the optional `matcher` field with usage rules.
+
 ## [0.4.1] - 2026-05-18
 
 ### Fixed
