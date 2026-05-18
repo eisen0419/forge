@@ -160,8 +160,42 @@ scripts/uninstall-hook.sh project-context
 | Hook ID | 事件 | 语言 | 做什么 |
 |---------|------|------|--------|
 | [`project-context`](./templates/hooks/project-context/) | `SessionStart` | 自适应（CJK 密度扫描） | 每次会话首回答前，强制 agent 在响应顶部输出一行：`项目定位: <X>。当前阶段: <Y>。`。使用 4 步降级链（README → manifest description → `tasks/todo.md` → 最近 commit）。可用 `FORGE_HOOK_LANG=zh\|en` 强制语言。 |
+| [`auto-evolve-collector`](./templates/hooks/auto-evolve-collector/) | `Stop` | 英文（jsonl/yaml 输出机器可读；correction-keyword 扫描内部双语） | 会话结束时扫描 session jsonl，提取工具错误和用户纠正信号，写入每日原始 jsonl、Crucible failed-directions store、可选 Obsidian 摘要。配套 [`templates/crucible/`](./templates/crucible/) 和 [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh)。 |
 
 `forge-setup` 向导的 Step 4.5 提供可选 hook 安装。manifest schema 与「如何添加新 hook」3 步配方见 [`templates/hooks/README.md`](./templates/hooks/README.md)。
+
+## Crucible · 演化资产系统
+
+> Forge 把工作流塑形对外，Crucible 把错误与成功提纯对内。
+
+Crucible 是一个 opt-in 跨会话学习储存，模板位于 [`templates/crucible/`](./templates/crucible/)，装机后挂在 `~/.claude/crucible/`。两个互相引用的目录让 Agent 从自己的失败和成功中跨会话学习：
+
+- `failed-directions/<fingerprint>.yaml` — Agent 反复遇到的错误模式，按 `(error_kind, tool_name)` 的 12 位 sha1 去重。
+- `golden-cases/<gc_id>.yaml` — 手工沉淀的成功流程，反向引用对应的 failed direction。
+
+L2+ 高风险任务（`git push` / 迁移 / 认证 / 模式变更）前 Agent 先读这两个目录，命中 fingerprint 后按 `correct_action` 执行，用 [`scripts/crucible-bookkeep.sh hit <fingerprint>`](./scripts/crucible-bookkeep.sh) 记账。数据可手工填，也可由上面的 `auto-evolve-collector` hook 自动收集。
+
+```bash
+# 把 Crucible 模板装到 ~/.claude/crucible/（一次性）
+mkdir -p ~/.claude/crucible
+cp -r templates/crucible/{README.md,schemas} ~/.claude/crucible/
+mkdir -p ~/.claude/crucible/{failed-directions,golden-cases}
+cd ~/.claude/crucible && git init && git add . && git commit -m "init crucible"
+
+# 可选：把示例 yaml 也放进去看一下格式
+cp templates/crucible/seeds/failed-direction.example.yaml ~/.claude/crucible/failed-directions/example.yaml
+cp templates/crucible/seeds/golden-case.example.yaml ~/.claude/crucible/golden-cases/gc_example.yaml
+```
+
+然后按 [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) 把 agent-facing prose splice 到你的 `CLAUDE.md` / `AGENTS.md` —— 不 splice 那段，Crucible 目录就只是静态文件没人读。
+
+| 文件 | 作用 |
+|------|------|
+| [`templates/crucible/README.md`](./templates/crucible/README.md) | 设计入口、数据流、安装、成本预算、兜底协议。双语 EN/ZH。 |
+| [`templates/crucible/schemas/`](./templates/crucible/schemas/) | 两种记录的权威 yaml schema，按 writer 注释。 |
+| [`templates/crucible/seeds/`](./templates/crucible/seeds/) | 示例对：`df53a88d1096` failed direction ⇄ `gc_example_001` golden case。 |
+| [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh) | 4 子命令：`hit` / `list` / `validate` / `gen-fingerprint`。 |
+| [`docs/workflows/crucible.md`](./docs/workflows/crucible.md) | 运行时指南：L0-L3 任务路由、pre-flight 协议、写回节奏、用于 `CLAUDE.md` / `AGENTS.md` 的 prose。 |
 
 ## 工作流增强
 
