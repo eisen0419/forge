@@ -77,8 +77,9 @@ install_one() {
     return 1
   fi
 
-  local event marker script_rel src dst
+  local event matcher marker script_rel src dst
   event=$(jq -r '.event' <<<"$entry")
+  matcher=$(jq -r '.matcher // ""' <<<"$entry")
   marker=$(jq -r '.marker' <<<"$entry")
   script_rel=$(jq -r '.script' <<<"$entry")
 
@@ -111,21 +112,44 @@ install_one() {
   else
     local tmp
     tmp=$(mktemp)
-    jq --arg evt "$event" --arg cmd "$cmd" '
-      .hooks //= {}
-      | .hooks[$evt] //= []
-      | .hooks[$evt] += [{"hooks": [{"command": $cmd, "type": "command"}]}]
-    ' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
-    echo "✓ registered: settings.json -> $event"
+    # Include "matcher" only when the manifest entry specifies one. The
+    # PreToolUse / PostToolUse events require a matcher (which tool the hook
+    # applies to, e.g. "Bash"); SessionStart / Stop / etc. ignore it.
+    if [[ -n "$matcher" ]]; then
+      jq --arg evt "$event" --arg cmd "$cmd" --arg mat "$matcher" '
+        .hooks //= {}
+        | .hooks[$evt] //= []
+        | .hooks[$evt] += [{"matcher": $mat, "hooks": [{"command": $cmd, "type": "command"}]}]
+      ' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+      echo "✓ registered: settings.json -> $event (matcher: $matcher)"
+    else
+      jq --arg evt "$event" --arg cmd "$cmd" '
+        .hooks //= {}
+        | .hooks[$evt] //= []
+        | .hooks[$evt] += [{"hooks": [{"command": $cmd, "type": "command"}]}]
+      ' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+      echo "✓ registered: settings.json -> $event"
+    fi
   fi
 
-  # Quick verification: run the hook once and show first line
-  local first_line
-  first_line=$(bash "$dst" 2>&1 | head -1 || true)
-  if [[ -n "$first_line" ]]; then
-    echo "  verify: $first_line"
+  # Quick verification: run the hook once and show first line. PreToolUse /
+  # PostToolUse hooks expect a JSON stdin payload — running them with no
+  # stdin should hit the "allow" path (empty stdout, exit 0) by design, so
+  # don't warn on empty output for those event types.
+  if [[ "$event" == "PreToolUse" || "$event" == "PostToolUse" ]]; then
+    if bash "$dst" </dev/null >/dev/null 2>&1; then
+      echo "  verify: $event hook (empty-stdin smoke test → allow path, OK)"
+    else
+      echo "  ⚠ $event hook exited non-zero on empty stdin" >&2
+    fi
   else
-    echo "  ⚠ verification produced empty output" >&2
+    local first_line
+    first_line=$(bash "$dst" 2>&1 | head -1 || true)
+    if [[ -n "$first_line" ]]; then
+      echo "  verify: $first_line"
+    else
+      echo "  ⚠ verification produced empty output" >&2
+    fi
   fi
 }
 
