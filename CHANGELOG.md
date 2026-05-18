@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Pre-Flight Protocol section** — Full-tier templates now splice in a four-step pre-flight checklist for L3 high-risk tasks (`git push`, `rm -rf`, migrations, auth, schema, force-push, etc.): state extract → Crucible failed-directions retrieval → follow `correct_action` + bookkeep on hit → write golden case on miss. Drives the agent to actually read `~/.claude/crucible/` before acting, rather than letting the directory sit unused.
+  - `templates/core/sections/18-pre-flight-protocol.md` — canonical source with full SECTION header (What / Why / Customize / Depends-on).
+  - `templates/full.md` and `templates/targets/codex/full.md` now contain a tightened ~14-line version of the protocol, spliced between `## Task Routing` and `## Multi-Agent Router`. Line budget: full.md 186/200, codex/full.md 186/200 (still under).
+  - Essential-tier templates intentionally unchanged — pre-flight requires Crucible, which is a Full-tier opt-in.
+
 ## [0.3.0] - 2026-05-18
 
 ### Added
