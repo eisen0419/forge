@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Crucible evolution-asset system** — opt-in cross-session learning store under `templates/crucible/`.
+  - `templates/crucible/README.md` — design, data flow, install instructions, cost budget.
+  - `templates/crucible/schemas/{failed-direction,golden-case}.schema.yaml` — authoritative field reference for both record types, with comments distinguishing hook-written / user-written / tooling-bumped fields.
+  - `templates/crucible/seeds/{failed-direction,golden-case}.example.yaml` — schema-correct worked example (`push to protected branch → open a PR`), reverse-linked pair.
+  - `templates/crucible/seeds/README.md` — what the seeds are and how to use them.
+  - `scripts/crucible-bookkeep.sh` — maintenance helper with four subcommands: `hit <fingerprint>` (bump retrieval_count + last_retrieved), `list` (tabular stats), `validate` (required-field completeness check), `gen-fingerprint <kind> <tool>` (canonical sha1 formula, mirrors the planned auto-evolve-collector hook).
+  - `docs/workflows/crucible.md` — runtime usage guide: L0–L3 task routing, the pre-flight protocol, write-back cadence, prose-to-splice for `CLAUDE.md` / `AGENTS.md`, maintenance rhythm, catchall protocol, honest failure modes.
+
+### Notes
+
+- Crucible is **opt-in and standalone** — no template, hook, or script in the existing Forge surface depends on it. The schema is the contract; the auto-evolve-collector hook that auto-populates `failed-directions/` will land in a follow-up PR.
+- Fingerprint formula is `sha1(f"{error_kind[:30].lower()}|{tool_name or 'unknown'}").hexdigest()[:12]` and is the same in `scripts/crucible-bookkeep.sh gen-fingerprint` as it will be in the future hook — verified end-to-end in a sandbox.
+
 ## [0.2.0] - 2026-05-17
 
 ### Added
