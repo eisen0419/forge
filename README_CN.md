@@ -167,7 +167,7 @@ scripts/uninstall-hook.sh project-context
 |---------|------|------|--------|
 | [`project-context`](./templates/hooks/project-context/) | `SessionStart` | 自适应（CJK 密度扫描） | 每次会话首回答前，强制 agent 在响应顶部输出一行：`项目定位: <X>。当前阶段: <Y>。`。使用 4 步降级链（README → manifest description → `tasks/todo.md` → 最近 commit）。可用 `FORGE_HOOK_LANG=zh\|en` 强制语言。 |
 | [`auto-evolve-collector`](./templates/hooks/auto-evolve-collector/) | `Stop` | 英文（jsonl/yaml 输出机器可读；correction-keyword 扫描内部双语） | 会话结束时扫描 session jsonl，提取工具错误和用户纠正信号，写入每日原始 jsonl、Crucible failed-directions store、可选 Obsidian 摘要。配套 [`templates/crucible/`](./templates/crucible/) 和 [`scripts/crucible-bookkeep.sh`](./scripts/crucible-bookkeep.sh)。 |
-| [`crucible-preflight`](./templates/hooks/crucible-preflight/) | `PreToolUse`（matcher: `Bash`）| 英文 | `auto-evolve-collector` 的读取端补完。在高风险 Bash 命令（`git push` / `rm -rf` / 迁移 / `force-push` 等）执行**前**拦截。匹配 `failed-directions/<fp>.yaml`（高风险正则 + ≥ 2 个关键词重叠）→ deny 并把对应的 `correct_action` 作为 `permissionDecisionReason` 返回给 Agent。防假阳性设计；通过 `~/.claude/crucible/.acks` 可对特定 fingerprint 豁免；审计 trail 写入 `~/.claude/crucible/surface_log.jsonl`。 |
+| [`crucible-preflight`](./templates/hooks/crucible-preflight/) | `PreToolUse`（matcher: `Bash`）| 英文 | `auto-evolve-collector` 的读取端补完。在高风险 Bash 命令（push 到 `main`/`master`/`release/*`、`rm -rf`、`force-push` 等，feature branch push 明确放行）执行**前**拦截。匹配 `failed-directions/<fp>.yaml`（高风险正则 + ≥ 2 个关键词重叠）→ deny 并把对应的 `correct_action` 作为 `permissionDecisionReason` 返回给 Agent。防假阳性设计；通过 `~/.claude/crucible/.acks` 可对特定 fingerprint 豁免；审计 trail 写入 `~/.claude/crucible/surface_log.jsonl`。 |
 
 `forge-setup` 向导的 Step 4.5 提供可选 hook 安装。manifest schema 与「如何添加新 hook」3 步配方见 [`templates/hooks/README.md`](./templates/hooks/README.md)。
 
