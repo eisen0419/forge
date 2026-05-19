@@ -108,6 +108,103 @@ TOOL=$(printf '%s' "$PAYLOAD" | python3 -c 'import json,sys; print(json.load(sys
 CMD=$(printf '%s' "$PAYLOAD" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tool_input",{}).get("command",""))' 2>/dev/null || echo "")
 [ -z "$CMD" ] && allow
 
+# Match executable shell text, not heredoc payload data. A heredoc body can
+# start with a risky-looking command string without executing it.
+MATCH_CMD=$(
+python3 - "$CMD" <<'PYEOF'
+import re
+import sys
+
+text = sys.argv[1]
+pending = []
+out = []
+heredoc_re = re.compile(r"<<-?\s*([\"']?)([A-Za-z0-9_./-]+)\1")
+
+def mask_quoted_separators(line):
+    masked = []
+    in_single = False
+    in_double = False
+    escaped = False
+    escaped_dollar = False
+    single_quote_meta = ";&|()" + chr(96)
+    escaped_meta = ";&|()" + chr(96)
+
+    for char in line:
+        if escaped:
+            if char == "$":
+                masked.append(" ")
+                escaped_dollar = True
+            elif char in escaped_meta:
+                masked.append(" ")
+                escaped_dollar = False
+            else:
+                masked.append(char)
+                escaped_dollar = False
+            escaped = False
+            continue
+
+        if char == "\\" and not in_single:
+            masked.append(char)
+            escaped = True
+            continue
+
+        if escaped_dollar:
+            if char == "(":
+                masked.append(" ")
+                escaped_dollar = False
+                continue
+            escaped_dollar = False
+
+        if char == "'" and not in_double:
+            in_single = not in_single
+            masked.append(char)
+            continue
+
+        if char == '"' and not in_single:
+            in_double = not in_double
+            masked.append(char)
+            continue
+
+        if in_single and char in single_quote_meta:
+            masked.append(" ")
+            continue
+
+        if in_double and char in ";&|":
+            masked.append(" ")
+            continue
+
+        if in_double and char == "(" and (not masked or masked[-1] != "$"):
+            masked.append(" ")
+            continue
+
+        masked.append(char)
+
+    return "".join(masked)
+
+def promote_compound_boundaries(line):
+    """Expose commands that start after shell compound keywords or group braces."""
+    line = re.sub(r"(^|[;&|()])([ \t]*)(then|do)([ \t]+)", r"\1\2;\4", line)
+    line = re.sub(r"(^|[;&|()])([ \t]*)\{([ \t]+)", r"\1\2;\3", line)
+    return line
+
+for line in text.splitlines():
+    if pending:
+        delimiter, strip_tabs = pending[0]
+        comparable = line.lstrip("\t") if strip_tabs else line
+        if comparable == delimiter:
+            pending.pop(0)
+        continue
+
+    out.append(promote_compound_boundaries(mask_quoted_separators(line)))
+    for match in heredoc_re.finditer(line):
+        pending.append((match.group(2), match.group(0).startswith("<<-")))
+
+sys.stdout.write("\n".join(out))
+if text.endswith("\n") and out:
+    sys.stdout.write("\n")
+PYEOF
+) || MATCH_CMD="$CMD"
+
 # 2. Acknowledgement bypass — if the user/agent has previously cited an fp
 # in this session, do not re-deny the same fp. The model can include
 # "acknowledged crucible fp:<id>" in any prior tool call's command/comment
@@ -117,17 +214,17 @@ ACK_FILE="$HOME/.claude/crucible/.acks"
 
 # 3. First-level filter — high-risk Bash command regex.
 #
-# Match command prefixes only (not arbitrary substrings) so a script comment
-# containing "git push" doesn't trip the hook. Use word-anchored extended
-# regex on the first 200 chars of the command.
-CMD_HEAD=$(printf '%s' "$CMD" | head -c 200)
+# Match command starts and shell-control boundaries only in executable text
+# (not arbitrary whitespace, quoted prose separators, or heredoc data). Use
+# word-anchored extended regex on the first 200 chars.
+CMD_HEAD=$(printf '%s' "$MATCH_CMD" | head -c 200)
 # High-risk pattern set. For `git push`, we deliberately match ONLY pushes
 # to main/master/release/* (or the equivalent refs/heads/...). Pushing a
 # feature branch is part of the normal PR flow and should not even enter
 # the keyword-overlap stage. Force-push variants are still flagged
 # regardless of target. Other destructive commands (rm -rf, chmod -R,
 # DROP TABLE, terraform destroy, kubectl delete) are flagged by name.
-HIGH_RISK_REGEX='(^|[ |&;()`$])(git[[:space:]]+push([[:space:]]+\S+){0,2}[[:space:]]+(main|master|release/\S+|refs/heads/(main|master|release/\S+))([[:space:]]|$)|git[[:space:]]+push.*--force|git[[:space:]]+push.*-f([[:space:]]|$)|git[[:space:]]+reset[[:space:]]+--hard|git[[:space:]]+rebase.*--force|rm[[:space:]]+-rf|chmod[[:space:]]+-R|chown[[:space:]]+-R|psql.*DROP[[:space:]]+TABLE|mysql.*DROP[[:space:]]+TABLE|terraform[[:space:]]+destroy|kubectl[[:space:]]+delete)'
+HIGH_RISK_REGEX='(^|[|&;(`][[:space:]]*)(git[[:space:]]+push([[:space:]]+\S+){0,2}[[:space:]]+(main|master|release/\S+|refs/heads/(main|master|release/\S+))([[:space:];|&)`]|$)|git[[:space:]]+push.*--force|git[[:space:]]+push.*-f([[:space:]]|$)|git[[:space:]]+reset[[:space:]]+--hard|git[[:space:]]+rebase.*--force|rm[[:space:]]+-rf|chmod[[:space:]]+-R|chown[[:space:]]+-R|psql.*DROP[[:space:]]+TABLE|mysql.*DROP[[:space:]]+TABLE|terraform[[:space:]]+destroy|kubectl[[:space:]]+delete)'
 
 if ! printf '%s' "$CMD_HEAD" | grep -qE "$HIGH_RISK_REGEX"; then
   allow
@@ -191,6 +288,14 @@ for yaml in "$CRUCIBLE_FD_DIR"/*.yaml; do
   if [ -f "$ACK_FILE" ] && grep -qx "$fp" "$ACK_FILE" 2>/dev/null; then
     continue
   fi
+
+  yaml_correct_action=$(awk '
+    /^correct_action: \|/ { in_block=1; next }
+    in_block && /^[a-z_]+:/ { in_block=0 }
+    in_block { print }
+    /^correct_action:/ && !/\|/ { sub(/^correct_action: */, ""); print; exit }
+  ' "$yaml" | tr -d '[:space:]"')
+  [ -n "$yaml_correct_action" ] || continue
 
   # Pull the failure-describing fields (trigger / sample_snippet) for keyword
   # comparison. We intentionally do NOT include `content` or `correct_action`:
