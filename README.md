@@ -297,7 +297,7 @@ The test plan lives at [docs/forge-routing-system-test.md](docs/forge-routing-sy
 [license-section]: #license
 
 <!-- Images -->
-[banner]: images/banner.png
+[banner]: images/banner-crucible.png
 [tier-diagram]: images/tiers.png
 
 <!-- Badges -->

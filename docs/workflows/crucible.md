@@ -1,5 +1,7 @@
 # Crucible Workflow · How the Agent Uses It at Runtime
 
+![Crucible — molten errors transformed into golden cases in an industrial workshop, with HOOK LIFECYCLE blueprints, fingerprint codes glowing inside the crucible, and GOLDEN CASE STORAGE crates of refined crystals.](../images/crucible-hero.png)
+
 > Companion to [`templates/crucible/`](../../templates/crucible/). That directory
 > defines the storage format; this doc defines the prompt-side behavior — when
 > the agent reads Crucible, when it writes, and which prose to splice into
