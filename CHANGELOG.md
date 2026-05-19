@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-05-19
+
+### Fixed
+
+- **`crucible-preflight` hook: false-positive deny on commands whose arguments contain risky shell text** — v0.5.2 ran the high-risk regex against the raw `tool_input.command` string. A command like `cat > /tmp/note.md <<EOF\nDo not git push origin main directly.\nEOF` was denied because the heredoc body's literal string `git push origin main` matched the protected-branch regex, even though the command shape itself is `cat` writing a file. The hook's intent (detect *executable* risky commands) was correct, but its input (raw command text) conflated executable shell syntax with embedded string literals — heredoc bodies, quoted strings, comments, and backslash-escaped sequences. Fix: introduce a Python pre-processor `MATCH_CMD` that strips/masks inert text before the high-risk regex runs:
+  - **heredoc bodies** are tracked (including `<<-` tab-strip and `<<'EOF'` / `<<"EOF"` quoting) and excluded from matching — the heredoc delimiter line is recognized, body lines are dropped until the closing delimiter
+  - **multi-heredoc** commands (`cat > a <<A; cat > b <<B`) track all pending delimiters in order
+  - **quoted separators** inside `'...'` and `"..."` are masked to spaces so a string literal `"git push; rm -rf /"` no longer exposes `rm -rf /` as a boundary-anchored command
+  - **backslash-escaped separators** (`\;`, `\&`, `\|`, `\(`, `` \` ``, `\$(`) are masked — a shell-disabled separator should not promote the next token to a command
+  - **compound boundaries** after `then`, `do`, and `{` are promoted to `;` so commands that *do* execute after a control keyword are still detectable
+  - HIGH_RISK_REGEX tightened to require the protected-branch token to follow either line start or a real shell separator (`|`, `&`, `;`, `(`, `` ` ``), not arbitrary whitespace
+  - The pre-processor falls back to the raw `CMD` if Python errors — hook never blocks Bash on its own bug.
+- **Catchall failed-direction with empty `correct_action` no longer triggers deny** — the `3eded2e4f8c5` fingerprint (kind=failed) had no prescription field but still matched on keyword overlap, denying commands with no actionable recovery flow for the agent. The hook now `awk`-extracts `correct_action` from each yaml and skips yamls with empty/missing prescription before doing the deny.
+- Sandbox: 53/53 testcases pass against the v0.6.0 hook (14 TP / 0 FP / 0 FN, F1 = 1.0), including the 12 edge cases that v0.5.2 failed on (heredoc bodies, escaped separators, comments containing `git push`, quoted command strings, `:` no-op args, multi-heredoc, and the empty-catchall trigger).
+- **Action for existing users**: re-run `scripts/install-hook.sh crucible-preflight` to upgrade the live hook in `~/.claude/hooks/`. If you ack'd `df53a88d1096` (push-to-main) for heredoc-style false positives — e.g. writing docs that mention `git push origin main` as text — you can now safely remove those entries from `~/.claude/crucible/.acks`. The hook now distinguishes "command that runs `git push origin main`" from "command whose argument contains the string `git push origin main`".
+
+### Methodology
+
+This release was developed via [CORAL](https://github.com/Human-Agent-Society/CORAL) — a multi-agent autonomous orchestration framework. Two `codex` agents (`gpt-5.5` runtime, `high` reasoning, deep-research + live web-search enabled) iterated against a 53-case grader (8 real production cases from `surface_log.jsonl` + 33 synthetic boundary cases + 12 edge cases) until F1 converged to 1.0. The winning hook is from `agent-1` commit `6f095dbf` — "promote compound shell boundaries before high-risk matching" — after 6 evolutions on top of the v0.5.2 baseline. The grader, testcases, and full multi-agent run history are reproducible via `~/projects/CORAL-experiments/crucible-hook-task/`.
+
 ## [0.5.2] - 2026-05-19
 
 ### Fixed
