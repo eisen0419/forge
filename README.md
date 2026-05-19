@@ -10,11 +10,13 @@
 [![English][lang-en-badge]][lang-en]
 [![简体中文][lang-zh-badge]][lang-zh]
 
-**Router-first instruction templates for Claude Code, Codex, and multi-agent engineering workflows.**
+**Router-first instruction templates _plus_ Crucible — a per-machine learning store that teaches your agent from its own past failures.**
 
-Forge generates practical `CLAUDE.md` and `AGENTS.md` files, keeps them short, and routes work across standalone agent rules, Compound Engineering, GSD, gstack, Waza, and Revolve.
+Forge generates short `CLAUDE.md` / `AGENTS.md` files that route work across CE / GSD / gstack / Waza / Revolve. **Crucible** sits underneath as Forge's evolution-asset system: a `Stop`-event hook records every tool error into a fingerprinted `failed-directions/` store, and a `PreToolUse` hook blocks future high-risk commands that match a prior failure — returning the proven `correct_action` to the agent _before_ the destructive command runs.
 
 [Quick Start][quick-start] •
+[Crucible][crucible-section] •
+[Runtime Hooks][runtime-hooks-section] •
 [Routing Model][routing-model] •
 [Templates][templates] •
 [Testing][testing]
@@ -31,6 +33,8 @@ Forge generates practical `CLAUDE.md` and `AGENTS.md` files, keeps them short, a
 - [Tiers][tiers]
 - [Routing Model][routing-model]
 - [Templates][templates]
+- [Runtime Hooks][runtime-hooks-section]
+- [Crucible · Evolution Asset System][crucible-section]
 - [Workflow Add-ons][workflow-add-ons]
 - [Testing][testing]
 - [Repository Layout][repository-layout]
@@ -54,6 +58,8 @@ AI coding agents are powerful, but their default behavior drifts:
 Forge turns your project instruction file into a **router and guardrail layer**. It tells the agent what to read, what not to introduce, when to escalate, how to verify, and which specialized workflow should handle the job.
 
 The goal is not a giant prompt. The goal is a short instruction surface that an agent can follow under pressure.
+
+Forge also ships **[Crucible][crucible-section]** — a per-machine error-learning store that captures every recurring tool failure into a fingerprinted yaml, and a `PreToolUse` hook that synchronously blocks future high-risk commands matching a known prior failure (returning the proven `correct_action` to the agent before the destructive command runs). Templates, runtime hooks, and Crucible together close the loop: short instructions, enforced guardrails, persistent memory.
 
 ## Quick Start
 
@@ -280,6 +286,8 @@ The test plan lives at [docs/forge-routing-system-test.md](docs/forge-routing-sy
 [tiers]: #tiers
 [routing-model]: #routing-model
 [templates]: #templates
+[runtime-hooks-section]: #runtime-hooks
+[crucible-section]: #crucible--evolution-asset-system
 [workflow-add-ons]: #workflow-add-ons
 [testing]: #testing
 [repository-layout]: #repository-layout
