@@ -7,24 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-18
+
 ### Added
 
-- **`crucible-preflight` runtime hook** — `PreToolUse` hook (matcher: `Bash`) that closes the read-side gap left by `auto-evolve-collector`. On every Bash tool call, the hook:
+- **`crucible-preflight` runtime hook** ([#15](https://github.com/eisen0419/forge/pull/15), merged in [`4d50342`](https://github.com/eisen0419/forge/commit/4d50342)) — `PreToolUse` hook (matcher: `Bash`) that closes the read-side gap left by `auto-evolve-collector`. On every Bash tool call, the hook:
   - filters by a high-risk command regex (`git push`, `git reset --hard`, `rm -rf`, `chmod -R`, `chown -R`, `terraform destroy`, `kubectl delete`, SQL `DROP TABLE` patterns)
   - greps `~/.claude/crucible/failed-directions/*.yaml` for a yaml whose `trigger` / `sample_snippet` / `content` / `correct_action` fields share ≥ 2 keywords with the command
   - on hit, returns `permissionDecision: deny` + the matching `correct_action` as `permissionDecisionReason` so the agent sees the proven recovery path **before** the destructive command executes
   - appends a JSON line to `~/.claude/crucible/surface_log.jsonl` per deny (machine-observed audit trail, independent of self-reported `retrieval_count`)
   - supports per-fingerprint opt-out via `~/.claude/crucible/.acks`
   - `templates/hooks/crucible-preflight/{hook.sh, README.md}` — 200-line bash + inline Python, design doc, install/uninstall, tuning knobs.
-  - `templates/hooks/manifest.json` — new entry with `event: PreToolUse` + `matcher: Bash` (manifest schema 1.1 already supports both fields).
+  - `templates/hooks/manifest.json` — new entry with `event: PreToolUse` + `matcher: Bash`.
 - **Motivation**: 3-day field data on the developer's own Crucible install showed only 3 of 11 fingerprints had `retrieval_count > 0` — the honor-system reader (prose in `~/CLAUDE.md` telling the agent to grep before L3) was not reliable. Independent Codex review confirmed (a) honor-system retrieval is the documented failure mode of the v0.3.0 design, (b) the original "echo to stderr" PreToolUse design would not have worked because `additionalContext` is shown alongside the tool result, too late for destructive commands. This hook implements the correct mechanism: synchronous `deny` with `permissionDecisionReason`, which is the only PreToolUse path Claude Code shows to the agent before the command runs.
 - **Anti-false-positive design**: fingerprint coarseness (`sha1(error_kind|tool_name)[:12]`) means a single fp can collapse unrelated failures under buckets like `permission denied|Bash`. The ≥ 2 keyword overlap rule (with 1-2 char tokens filtered out) prevents a `chmod` failure pattern from denying `git push` commands and vice versa. Sandboxed across 9 test cases including the explicit anti-FP scenario (`git push` does NOT match the `chmod` fingerprint).
+- **Live-verified**: in a separate Claude Code session immediately after install, `git push origin main` was intercepted and denied with fingerprint `70c826a15cec` (stacked PR base-deletion recovery), and `surface_log.jsonl` incremented from 1 → 2 lines.
 
 ### Changed
 
-- **`scripts/install-hook.sh`** now reads the optional `matcher` field from `manifest.json` and includes it in the `settings.json` hook registration when present. Required for `PreToolUse` / `PostToolUse` hooks (which scope by tool name); ignored for `SessionStart` / `Stop` / `SessionEnd`. Backwards-compatible: hooks without `matcher` install unchanged.
-- **`scripts/install-hook.sh`** verification step no longer warns "empty output" when installing `PreToolUse` / `PostToolUse` hooks. Those hooks expect a JSON stdin payload; the empty-stdin smoke test should hit the "allow" path (empty stdout, exit 0) by design. The installer now reports `verify: PreToolUse hook (empty-stdin smoke test → allow path, OK)` for these event types.
-- **`templates/hooks/README.md`** manifest schema example annotates the optional `matcher` field with usage rules.
+- **`scripts/install-hook.sh`** ([#15](https://github.com/eisen0419/forge/pull/15)) now reads the optional `matcher` field from `manifest.json` and includes it in the `settings.json` hook registration when present. Required for `PreToolUse` / `PostToolUse` hooks (which scope by tool name); ignored for `SessionStart` / `Stop` / `SessionEnd`. Backwards-compatible: hooks without `matcher` install unchanged.
+- **`scripts/install-hook.sh`** ([#15](https://github.com/eisen0419/forge/pull/15)) verification step no longer warns "empty output" when installing `PreToolUse` / `PostToolUse` hooks. Those hooks expect a JSON stdin payload; the empty-stdin smoke test should hit the "allow" path (empty stdout, exit 0) by design. The installer now reports `verify: PreToolUse hook (empty-stdin smoke test → allow path, OK)` for these event types.
+- **`templates/hooks/README.md`** ([#15](https://github.com/eisen0419/forge/pull/15)) manifest schema example annotates the optional `matcher` field with usage rules.
+- **README visibility** ([#16](https://github.com/eisen0419/forge/pull/16), merged in [`d659332`](https://github.com/eisen0419/forge/commit/d659332)) — surface Crucible above the fold. Banner tagline now leads with templates + Crucible joint value prop and includes a one-sentence explanation of the Stop-hook + PreToolUse-hook loop. Quick-link bar adds `Crucible` + `Runtime Hooks`. Table of Contents grows two missing entries (Runtime Hooks from PR #3, Crucible from PR #6). Why Forge section closes with a paragraph framing the three-layer story (templates + runtime hooks + Crucible). README_CN.md mirrors 1:1. No code changes.
+- **`README.md` + `README_CN.md`** Runtime Hooks catalog grows a row for `crucible-preflight` (third hook).
+- **GitHub repo description** updated to `"Router-first CLAUDE.md/AGENTS.md templates plus Crucible — a per-machine error-learning store with Stop-hook writer + PreToolUse-hook reader that blocks high-risk commands matching a known prior failure."` (was `"AI-Assisted Development Workflow Starter Kit for Claude Code"`).
+
+### Notes
+
+- This release closes the Crucible loop. From v0.3.0 (storage + writer hook), through v0.4.0 (reader prose + installer + wizard), to v0.5.0 (**enforced** reader via PreToolUse hook + visibility), the wave is now complete: a Full-tier `forge-setup` run installs the templates, the writer hook, the storage, and the synchronous reader hook in one wizard pass. `surface_log.jsonl` provides machine-observed evidence of the reader actually firing — `retrieval_count` (honor-system, model-reported) and `surface_log` (hook-observed) form two independent signals.
+- SemVer minor bump (0.4.1 → 0.5.0): new top-level hook surface (`crucible-preflight`) and changed `scripts/install-hook.sh` API (now consumes optional `matcher` from manifest). Existing v0.4.x hooks are unaffected — backwards-compatible.
 
 ## [0.4.1] - 2026-05-18
 
