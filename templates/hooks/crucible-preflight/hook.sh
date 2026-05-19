@@ -121,7 +121,13 @@ ACK_FILE="$HOME/.claude/crucible/.acks"
 # containing "git push" doesn't trip the hook. Use word-anchored extended
 # regex on the first 200 chars of the command.
 CMD_HEAD=$(printf '%s' "$CMD" | head -c 200)
-HIGH_RISK_REGEX='(^|[ |&;()`$])(git[[:space:]]+push|git[[:space:]]+reset[[:space:]]+--hard|git[[:space:]]+rebase.*--force|rm[[:space:]]+-rf|chmod[[:space:]]+-R|chown[[:space:]]+-R|psql.*DROP[[:space:]]+TABLE|mysql.*DROP[[:space:]]+TABLE|terraform[[:space:]]+destroy|kubectl[[:space:]]+delete)'
+# High-risk pattern set. For `git push`, we deliberately match ONLY pushes
+# to main/master/release/* (or the equivalent refs/heads/...). Pushing a
+# feature branch is part of the normal PR flow and should not even enter
+# the keyword-overlap stage. Force-push variants are still flagged
+# regardless of target. Other destructive commands (rm -rf, chmod -R,
+# DROP TABLE, terraform destroy, kubectl delete) are flagged by name.
+HIGH_RISK_REGEX='(^|[ |&;()`$])(git[[:space:]]+push([[:space:]]+\S+){0,2}[[:space:]]+(main|master|release/\S+|refs/heads/(main|master|release/\S+))([[:space:]]|$)|git[[:space:]]+push.*--force|git[[:space:]]+push.*-f([[:space:]]|$)|git[[:space:]]+reset[[:space:]]+--hard|git[[:space:]]+rebase.*--force|rm[[:space:]]+-rf|chmod[[:space:]]+-R|chown[[:space:]]+-R|psql.*DROP[[:space:]]+TABLE|mysql.*DROP[[:space:]]+TABLE|terraform[[:space:]]+destroy|kubectl[[:space:]]+delete)'
 
 if ! printf '%s' "$CMD_HEAD" | grep -qE "$HIGH_RISK_REGEX"; then
   allow
@@ -186,12 +192,18 @@ for yaml in "$CRUCIBLE_FD_DIR"/*.yaml; do
     continue
   fi
 
-  # Pull the user-edited text fields (trigger / content / correct_action / sample_snippet)
-  # and lowercase them for keyword comparison.
+  # Pull the failure-describing fields (trigger / sample_snippet) for keyword
+  # comparison. We intentionally do NOT include `content` or `correct_action`:
+  # those are the prescription (what the agent should DO when the failure
+  # happens), not the trigger (what the failure LOOKS like). Including the
+  # prescription created a feedback loop — a yaml whose correct_action read
+  # "push branch via: git push -u origin <branch>" would match any
+  # `git push -u origin <something>` command and deny it, even though the
+  # yaml's trigger was specifically about pushing to a *protected* branch.
   text=$(awk '
-    /^(trigger|content|correct_action|sample_snippet):/ { capture=1 }
+    /^(trigger|sample_snippet):/ { capture=1 }
     capture { print }
-    /^[a-z_]+:/ && !/^(trigger|content|correct_action|sample_snippet):/ { capture=0 }
+    /^[a-z_]+:/ && !/^(trigger|sample_snippet):/ { capture=0 }
   ' "$yaml" 2>/dev/null | tr '[:upper:]' '[:lower:]')
 
   # Count keyword matches.
