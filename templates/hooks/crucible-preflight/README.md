@@ -15,7 +15,7 @@ This hook converts the reader from honor-system to enforced: when the agent atte
 
 ## What it does · 它做了什么
 
-On every Bash tool call, the hook runs four checks in order. Any check that "fails" short-circuits to **allow** (i.e. the hook does nothing). All four must "pass" for a **deny** to fire.
+On every Bash tool call, the hook runs five checks in order. Any check that "fails" short-circuits to **allow** (i.e. the hook does nothing). All must "pass" for a **deny** to fire.
 
 ```
 1. tool_name == "Bash"
@@ -24,6 +24,12 @@ On every Bash tool call, the hook runs four checks in order. Any check that "fai
    (git push | git reset --hard | git rebase --force | rm -rf |
     chmod -R | chown -R | DROP TABLE | terraform destroy | kubectl delete)
    └─ no:  allow                              ← most commands stop here
+2a. (NEW in v0.5.1) tag-push exemption — three detection cases:
+    (a) --tags or --follow-tags flag anywhere on the line
+    (b) explicit refs/tags/<name> path
+    (c) last token is an EXISTING local git tag
+         (verified via `git rev-parse --verify refs/tags/<token>`)
+    └─ any case true:  allow                  ← branch-push yamls do not apply
 3. some failed-direction yaml's trigger/sample_snippet/content/correct_action
    shares ≥ 2 keywords with the command
    └─ no:  allow                              ← anti-false-positive gate

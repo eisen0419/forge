@@ -127,6 +127,44 @@ if ! printf '%s' "$CMD_HEAD" | grep -qE "$HIGH_RISK_REGEX"; then
   allow
 fi
 
+# 3a. Tag-push early-allow.
+#
+# `git push origin v0.5.0` superficially looks like a branch push to the
+# crucible store, because failed-directions yamls about protected-branch
+# pushes share keywords with any `git push origin <ref>` command. But tag
+# pushes do not actually risk the failures those yamls describe (you don't
+# trip branch protection by pushing a tag; you don't fight the GitHub PR
+# API by pushing a tag). So if this command is unambiguously a tag push,
+# skip the rest of the hook and allow.
+#
+# Three detection cases:
+#   (a) --tags or --follow-tags flag anywhere on the line
+#   (b) explicit refs/tags/<name> path on the line
+#   (c) the last whitespace-delimited token is an existing tag in the local
+#       repo (queried via `git rev-parse --verify refs/tags/<token>`)
+#
+# Case (c) is the strict one — it requires the tag to actually exist before
+# the push, which is the normal `git tag X && git push origin X` workflow.
+# If somebody types `git push origin v0.5.0` while v0.5.0 doesn't exist
+# locally yet, git itself will reject the push, and the hook will still
+# have done its job (the branch-push yamls don't apply anyway).
+if printf '%s' "$CMD_HEAD" | grep -qE '(^|[[:space:]])(--tags|--follow-tags)([[:space:]]|$)'; then
+  allow
+fi
+if printf '%s' "$CMD_HEAD" | grep -qE 'refs/tags/[A-Za-z0-9._/-]+'; then
+  allow
+fi
+# Last token of the command (after trimming trailing whitespace + comments).
+# We only attempt this check if the command looks like `git push <remote> <ref>`
+# — three or more tokens starting with `git push`.
+LAST_TOK=$(printf '%s' "$CMD_HEAD" | awk '{print $NF}')
+if [ -n "$LAST_TOK" ] \
+   && printf '%s' "$CMD_HEAD" | grep -qE '^[[:space:]]*git[[:space:]]+push[[:space:]]+\S+[[:space:]]+\S+' \
+   && command -v git >/dev/null 2>&1 \
+   && git rev-parse --verify "refs/tags/$LAST_TOK" >/dev/null 2>&1; then
+  allow
+fi
+
 # 4. Extract command keywords for the second-level match.
 # Take alphanumeric tokens ≥ 3 chars from the first 200 chars, lowercase.
 KEYWORDS=$(printf '%s' "$CMD_HEAD" | tr -c '[:alnum:]' '\n' | awk 'length($0) >= 3' | tr '[:upper:]' '[:lower:]' | sort -u)

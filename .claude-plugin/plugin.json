@@ -1,6 +1,6 @@
 {
   "name": "forge",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "AI-assisted development workflow starter kit and multi-agent router. Provides battle-tested CLAUDE.md and AGENTS.md templates with task routing, CE/GSD/gstack/Waza routing, quality gates, and knowledge compounding.",
   "author": {
     "name": "Eisen",

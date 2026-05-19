@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-05-18
+
+### Fixed
+
+- **`crucible-preflight` hook: false-positive deny on tag pushes** — v0.5.0 hook treated `git push origin v0.5.0` (push a tag) the same as `git push origin main` (push a branch), because both share the keywords `git`, `push`, `origin` and trigger ≥ 2 keyword overlap with the protected-branch failed-direction yamls. This was caught immediately during the v0.5.0 release itself: pushing the `v0.5.0` tag was denied by fingerprint `df53a88d1096` (push to protected branch) and `70c826a15cec` (stacked PR base-deletion), forcing a `.acks` workaround.
+- The hook now exits with **allow** in three additional cases, evaluated after the high-risk regex match but before the failed-direction grep:
+  - **(a)** `--tags` or `--follow-tags` flag anywhere on the command line — pushing all tags is never a branch operation.
+  - **(b)** Explicit `refs/tags/<name>` path — the canonical fully-qualified tag refspec is unambiguous.
+  - **(c)** Last whitespace-delimited token resolves to an existing local tag (verified via `git rev-parse --verify refs/tags/<token>`) — covers the common `git tag X && git push origin X` workflow without trusting arbitrary `v*` names that might be branches.
+- Non-existent tag-looking refs (e.g. `git push origin v999-does-not-exist` when no such tag exists) still hit the deny path — the hook is conservative by design.
+- Sandbox: 8 scenarios pass (regression: branch / force / rm still deny; new: 4 tag-push cases now allow; edge: non-existent tag still denies).
+- **Action for existing users**: re-run `scripts/install-hook.sh crucible-preflight` to upgrade the live hook in `~/.claude/hooks/`. If you ack'd `df53a88d1096` or `70c826a15cec` in `~/.claude/crucible/.acks` to work around this bug, you can now safely remove those lines.
+
 ## [0.5.0] - 2026-05-18
 
 ### Added
