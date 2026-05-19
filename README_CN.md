@@ -297,7 +297,7 @@ node scripts/test-forge-routing.mjs
 [license-section]: #许可证
 
 <!-- Images -->
-[banner]: images/banner.png
+[banner]: images/banner-crucible.png
 [tier-diagram]: images/tiers.png
 
 <!-- Badges -->
